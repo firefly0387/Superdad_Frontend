@@ -9,7 +9,7 @@ export const useAppBoot = () => {
     const boot = async () => {
       try {
         // 🔥 STEP 1: API PRELOAD (parallel)
-        const [hotDeals, categories, products] = await Promise.all([
+        const [, , products] = await Promise.all([
           getHotDeals(),
           getCategories(),
           getProducts({ page: 1 }),

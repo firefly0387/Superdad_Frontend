@@ -1,4 +1,4 @@
-import React from "react";
+
 import { Mail, Phone, MapPin } from "lucide-react";
 
 const ContactPage = () => {
@@ -27,7 +27,7 @@ const ContactPage = () => {
           We usually reply within 1 working day · Mon – Fri, 8am – 5pm
         </p>
 
-        <div className="w-16 h-[2px] bg-black/10 mx-auto mt-6 rounded-full"></div>
+        <div className="w-16 h-0.5 bg-black/10 mx-auto mt-6 rounded-full"></div>
       </div>
 
       {/* Main Content */}

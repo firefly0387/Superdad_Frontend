@@ -9,7 +9,8 @@ import ProductHero from "../components/products/ProductHero";
 import ProductsPageSkeleton from "@/components/skletons/ProductSkleton";
 
 import { getProducts, getCategories } from "@/utils/api";
-import type { Product, Category } from "@/types/product";
+import type { Product } from "@/types/product";
+import type { Category } from "@/types/category";
 
 const Products = () => {
   const [products, setProducts] = useState<Product[]>([]);

@@ -6,13 +6,13 @@ const floating = {
   transition: {
     duration: 6,
     repeat: Infinity,
-    ease: "easeInOut",
+    ease: "easeInOut" as const,
   },
 };
 
 export default function AboutUs() {
   return (
-    <div className="relative overflow-hidden bg-gradient-to-br from-[#fffafc] via-white to-[#f7fbff]">
+    <div className="relative overflow-hidden bg-linear-to-br from-[#fffafc] via-white to-[#f7fbff]">
       {/* BACKGROUND BLOBS */}
       <div className="fixed inset-0 -z-10 overflow-hidden">
         <div className="absolute top-10 left-10 w-72 h-72 bg-pink-300/20 rounded-full blur-3xl" />
@@ -59,7 +59,7 @@ export default function AboutUs() {
               <img
                 src="/about-hero.jpg"
                 alt="Superdad"
-                className="rounded-[32px] h-[550px] object-cover w-full"
+                className="rounded-[32px] h-137.5 object-cover w-full"
               />
 
               <motion.div
@@ -166,7 +166,7 @@ export default function AboutUs() {
               <img
                 src="/our-story.jpg"
                 alt="Our Story"
-                className="rounded-[32px] h-[550px] object-cover w-full"
+                className="rounded-[32px] h-137.5 object-cover w-full"
               />
             </div>
           </div>

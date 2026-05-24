@@ -2,7 +2,7 @@ import { CreditCard } from "lucide-react";
 
 export default function PaymentPolicy() {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#fffafc] to-white px-6 md:px-16 py-24">
+    <div className="min-h-screen bg-linear-to-br from-[#fffafc] to-white px-6 md:px-16 py-24">
       <div className="max-w-5xl mx-auto">
         <div className="flex items-center gap-3">
           <CreditCard className="text-pink-500" size={32} />

@@ -93,7 +93,7 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
       const cartId = localStorage.getItem("cart_id");
       if (!cartId) return;
 
-      await updateCartItemApi(id, qty, cartId);
+      await updateCartItemApi(id, cartId, qty);
 
       const cart = await getCartApi();
 

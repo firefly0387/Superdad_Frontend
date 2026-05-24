@@ -1,3 +1,5 @@
+import type { Category } from "@/types/category";
+
 type Props = {
   categories: Category[];
   category: number | "";

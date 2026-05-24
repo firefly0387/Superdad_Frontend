@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { getCartApi, updateCartItemApi, removeCartItemApi } from "@/utils/api";
 import { Trash2 } from "lucide-react";
@@ -58,7 +58,7 @@ const CartPage = () => {
 
           <button
             onClick={() => navigate("/products")}
-            className="px-6 py-3 rounded-2xl bg-gradient-to-r from-rose-500 to-orange-400 text-white font-medium hover:opacity-95 transition"
+            className="px-6 py-3 rounded-2xl bg-linear-to-r from-rose-500 to-orange-400 text-white font-medium hover:opacity-95 transition"
           >
             Continue Shopping
           </button>
@@ -188,7 +188,7 @@ const CartPage = () => {
 
           <button
             onClick={() => navigate("/checkout")}
-            className="w-full mt-6 py-3 rounded-2xl bg-gradient-to-r from-rose-500 to-orange-400 text-white font-medium hover:opacity-95 transition"
+            className="w-full mt-6 py-3 rounded-2xl bg-linear-to-r from-rose-500 to-orange-400 text-white font-medium hover:opacity-95 transition"
           >
             Proceed to Checkout
           </button>

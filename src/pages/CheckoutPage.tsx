@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { useCart } from "../context/CartContext";
 
 const CheckoutPage = () => {
@@ -90,7 +90,7 @@ const CheckoutPage = () => {
           </h2>
 
           <div className="space-y-3">
-            {state.items.map((item) => (
+            {state.items.map((item:any) => (
               <div
                 key={item.id}
                 className="flex justify-between gap-4 text-sm text-gray-700"
@@ -130,7 +130,7 @@ const CheckoutPage = () => {
             </label>
           </div>
 
-          <button className="w-full mt-6 py-3 rounded-2xl bg-gradient-to-r from-rose-500 to-orange-400 text-white font-medium hover:opacity-95 transition">
+          <button className="w-full mt-6 py-3 rounded-2xl bg-linear-to-r from-rose-500 to-orange-400 text-white font-medium hover:opacity-95 transition">
             Place Order
           </button>
         </div>

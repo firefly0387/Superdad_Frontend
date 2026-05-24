@@ -1,7 +1,7 @@
-import React from "react";
+
 
 const SuccessPage = () => {
-  const order = JSON.parse(localStorage.getItem("lastOrder"));
+  const order = JSON.parse(localStorage.getItem("lastOrder") || "{}");
 
   return (
     <div className="p-10 text-center">

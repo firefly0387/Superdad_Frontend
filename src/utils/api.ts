@@ -1,6 +1,7 @@
 import axios from "axios";
 import type { Product } from "@/types/product";
-import type { Category, SubCategory } from "@/types/category";
+import type { Category} from "@/types/category";
+import type { SubCategory } from "@/types/subCategory";
 import type { HeroResponse } from "@/types/hero";
 
 const API_BASE_URL =
@@ -84,7 +85,7 @@ export const removeCartItemApi = async (id: number) => {
 export const updateCartItemApi = async (
   id: number,
   cart: string,
-  quantity: number
+  quantity: number | string
 ) => {
   return api.patch(`/product/cart/item/update/${id}/`, {
     cart_id: cart,

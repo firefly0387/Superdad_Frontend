@@ -1,87 +1,123 @@
 import React, { createContext, useContext, useReducer, useEffect } from "react";
 
-// 1. Create Context
-const CartContext = createContext();
+import {
+  addToCartApi,
+  getCartApi,
+  updateCartItemApi,
+  removeCartItemApi,
+} from "@/utils/api";
 
-// 2. Initial State (with localStorage support)
+const CartContext = createContext<any>(null);
+
 const initialState = {
-  items: JSON.parse(localStorage.getItem("cart")) || [],
+  items: [],
 };
 
-// 3. Reducer
-const cartReducer = (state, action) => {
+const cartReducer = (state: any, action: any) => {
   switch (action.type) {
-    case "ADD_TO_CART": {
-      const existing = state.items.find(i => i.id === action.payload.id);
-
-      if (existing) {
-        return {
-          ...state,
-          items: state.items.map(i =>
-            i.id === action.payload.id
-              ? { ...i, quantity: i.quantity + 1 }
-              : i
-          ),
-        };
-      }
-
+    case "SET_CART":
       return {
         ...state,
-        items: [...state.items, { ...action.payload, quantity: 1 }],
-      };
-    }
-
-    case "REMOVE_FROM_CART":
-      return {
-        ...state,
-        items: state.items.filter(i => i.id !== action.payload),
+        items: action.payload,
       };
 
-    case "UPDATE_QUANTITY":
+    case "REMOVE_ITEM":
       return {
         ...state,
-        items: state.items.map(i =>
-          i.id === action.payload.id
-            ? { ...i, quantity: action.payload.quantity }
-            : i
+        items: state.items.filter(
+          (item: any) => item.id !== action.payload
         ),
       };
-
-    case "CLEAR_CART":
-      return { items: [] };
 
     default:
       return state;
   }
 };
 
-// 4. Provider
-export const CartProvider = ({ children }) => {
+export const CartProvider = ({ children }: { children: React.ReactNode }) => {
   const [state, dispatch] = useReducer(cartReducer, initialState);
 
-  // Save to localStorage
+  // LOAD CART ON START
   useEffect(() => {
-    localStorage.setItem("cart", JSON.stringify(state.items));
-  }, [state.items]);
+    const fetchCart = async () => {
+      try {
+        const res = await getCartApi();
+        dispatch({
+          type: "SET_CART",
+          payload: res.items || [],
+        });
+      } catch (err) {
+        console.error("Cart load error:", err);
+      }
+    };
 
-const addToCart = (product) => {
-  console.log("ADDING:", product);
-  dispatch({ type: "ADD_TO_CART", payload: product });
-};
+    fetchCart();
+  }, []);
 
-  const removeFromCart = (id) => {
-    dispatch({ type: "REMOVE_FROM_CART", payload: id });
+  // ADD TO CART
+  const addToCart = async (product: any) => {
+    try {
+      await addToCartApi(product.id, 1);
+
+      const cart = await getCartApi();
+
+      dispatch({
+        type: "SET_CART",
+        payload: cart.items || [],
+      });
+    } catch (err) {
+      console.error("Add to cart error:", err);
+    }
   };
 
-  const updateQuantity = (id, quantity) => {
-    if (quantity < 1) return;
-    dispatch({ type: "UPDATE_QUANTITY", payload: { id, quantity } });
+  // REMOVE
+  const removeFromCart = async (id: number) => {
+    try {
+      await removeCartItemApi(id);
+
+      dispatch({
+        type: "REMOVE_ITEM",
+        payload: id,
+      });
+    } catch (err) {
+      console.error("Remove error:", err);
+    }
   };
 
-  const clearCart = () => dispatch({ type: "CLEAR_CART" });
+  // UPDATE QUANTITY
+  const updateQuantity = async (id: number, quantity: number | string) => {
+    try {
+      const qty = Number(quantity);
+      if (qty < 1) return;
+
+      const cartId = localStorage.getItem("cart_id");
+      if (!cartId) return;
+
+      await updateCartItemApi(id, qty, cartId);
+
+      const cart = await getCartApi();
+
+      dispatch({
+        type: "SET_CART",
+        payload: cart.items || [],
+      });
+    } catch (err) {
+      console.error("Update error:", err);
+    }
+  };
+
+  const clearCart = () => {
+    dispatch({
+      type: "SET_CART",
+      payload: [],
+    });
+
+    localStorage.removeItem("cart_id");
+  };
 
   const total = state.items.reduce(
-    (acc, item) => acc + item.price * item.quantity,
+    (acc: number, item: any) =>
+      acc + Number(item.product?.price || 0) * item.quantity,
     0
   );
 
@@ -101,5 +137,4 @@ const addToCart = (product) => {
   );
 };
 
-// 5. Custom Hook
 export const useCart = () => useContext(CartContext);

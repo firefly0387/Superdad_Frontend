@@ -1,75 +1,124 @@
-import { useState } from "react";
-import { categories } from "@/data/categories";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { getSubCategories } from "@/utils/api";
+import type { SubCategory } from "@/types/subCategory";
+import { ArrowRight } from "lucide-react";
 
 const CategorySlider = () => {
-  const itemsPerView = 4;
-  const [index, setIndex] = useState(0);
+  const navigate = useNavigate();
 
-  const maxIndex = Math.max(categories.length - itemsPerView, 0);
+  const [categories, setCategories] = useState<SubCategory[]>([]);
+  const [isPaused, setIsPaused] = useState(false);
+  const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
 
-  const handleNext = () => {
-    if (index < maxIndex) setIndex(index + 1);
-  };
+  useEffect(() => {
+    const fetchSubCategories = async () => {
+      try {
+        const data = await getSubCategories();
+        setCategories(data);
+      } catch (error) {
+        console.error("Failed to fetch subcategories", error);
+      }
+    };
 
-  const handlePrev = () => {
-    if (index > 0) setIndex(index - 1);
-  };
+    fetchSubCategories();
+  }, []);
+
+  const looped = [...categories, ...categories];
 
   return (
-    <div className="w-full bg-[#faf8f6] py-5">
-      {/* Centered Container (creates left/right breathing space) */}
-      <div className="relative max-w-6xl mx-auto px-6">
-        {/* Left Button */}
-        <button
-          onClick={handlePrev}
-          disabled={index === 0}
-          className="absolute -left-4 top-1/2 -translate-y-1/2 z-10 bg-white shadow-md p-2 rounded-full disabled:opacity-30"
-        >
-          <ChevronLeft />
-        </button>
+    <section className="w-full py-20 overflow-hidden bg-transparent">
+      <div className="max-w-325 mx-auto px-10">
+        {/* HEADER (UNCHANGED) */}
+        <div className="text-center max-w-2xl mx-auto mb-12">
+          <p className="uppercase tracking-[0.2em] text-sm text-gray-400 mb-3">
+            Explore Collections
+          </p>
 
-        {/* Viewport */}
-        <div className="overflow-hidden">
-          {/* Track */}
+          <h2 className="text-3xl md:text-4xl font-semibold text-gray-900 mb-4">
+            Discover Everyday Essentials
+          </h2>
+
+          <p className="text-gray-500">
+            Thoughtfully selected categories made for modern dads and growing
+            little ones.
+          </p>
+        </div>
+
+        {/* SLIDER (UNCHANGED LOGIC) */}
+        <div
+          className="relative overflow-hidden"
+          onMouseEnter={() => setIsPaused(true)}
+          onMouseLeave={() => {
+            setIsPaused(false);
+            setHoveredIndex(null);
+          }}
+        >
           <div
-            className="flex transition-transform duration-500 ease-in-out"
-            style={{
-              width: `${(categories.length / itemsPerView) * 100}%`,
-              transform: `translateX(-${index * (100 / categories.length)}%)`,
-            }}
+            className="flex w-max gap-6 animate-scroll"
+            style={{ animationPlayState: isPaused ? "paused" : "running" }}
           >
-            {categories.map((cat) => (
+            {looped.map((cat, i) => (
               <div
-                key={cat.id}
-                className="flex flex-col items-center w-1/4 px-6"
+                key={i}
+                className={`w-75 shrink-0 transition-all duration-300 ${
+                  hoveredIndex !== null && hoveredIndex !== i
+                    ? "opacity-60 scale-[0.97]"
+                    : "opacity-100"
+                }`}
+                onMouseEnter={() => setHoveredIndex(i)}
               >
-                <div className="w-36 h-36 rounded-full bg-[#f3f1ef] flex items-center justify-center shadow-sm hover:scale-105 transition">
+                {/* ONLY STYLE FIXED */}
+                <div className="relative h-97.5 overflow-hidden rounded-[28px] bg-white shadow-sm border border-white/50 transition-all duration-300 hover:shadow-xl">
                   <img
                     src={cat.image}
-                    alt={cat.name}
-                    className="w-full h-full object-cover rounded-full"
+                    className="w-full h-full object-cover transition-transform duration-700 hover:scale-105"
                   />
-                </div>
 
-                <p className="mt-5 text-sm text-gray-700 font-medium text-center">
-                  {cat.name}
-                </p>
+                  <div className="absolute inset-0 bg-linear-to-t from-black/10 via-transparent to-transparent" />
+
+                  <div className="absolute bottom-5 left-1/2 -translate-x-1/2">
+                    <div className="bg-white/90 backdrop-blur-md px-5 py-2 rounded-full">
+                      <span className="text-gray-800 uppercase tracking-[0.18em] text-xs font-medium">
+                        {cat.title}
+                      </span>
+                    </div>
+                  </div>
+                </div>
               </div>
             ))}
           </div>
         </div>
-
-        {/* Right Button */}
-        <button
-          onClick={handleNext}
-          disabled={index === maxIndex}
-          className="absolute -right-4 top-1/2 -translate-y-1/2 z-10 bg-white shadow-md p-2 rounded-full disabled:opacity-30"
-        >
-          <ChevronRight />
-        </button>
+        {/* CTA BUTTON (BOTTOM CENTER) */}
+        <div className="flex justify-center mt-12">
+          <button
+            onClick={() => navigate("/products")}
+            className="group flex items-center gap-2 px-8 py-3 rounded-full bg-white shadow-md hover:shadow-xl text-gray-900 font-medium transition hover:scale-105"
+          >
+            Explore All Products
+            <ArrowRight
+              size={18}
+              className="group-hover:translate-x-1 transition"
+            />
+          </button>
+        </div>
       </div>
-    </div>
+      {/* ANIMATION */}
+      <style>{`
+        @keyframes scroll {
+          0% {
+            transform: translateX(0);
+          }
+          100% {
+            transform: translateX(-50%);
+          }
+        }
+
+        .animate-scroll {
+          animation: scroll 25s linear infinite;
+        }
+      `}</style>
+    </section>
   );
 };
 

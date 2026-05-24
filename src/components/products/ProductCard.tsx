@@ -1,71 +1,97 @@
 import type { Product } from "../../types/product";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
+import { Eye, ShoppingCart } from "lucide-react";
+import { useCart } from "@/context/CartContext";
+import { toast } from "sonner";
 
 const ProductCard = ({ product }: { product: Product }) => {
-    const navigate = useNavigate()
+  const navigate = useNavigate();
+  const { addToCart } = useCart();
+
   return (
     <motion.div
-      whileHover={{ y: -5 }}
-      className="group cursor-pointer "
+      whileHover={{ y: -8, scale: 1.01 }}
+      transition={{ type: "spring", stiffness: 260, damping: 18 }}
+      className="
+        group relative bg-white
+        border border-gray-100
+        rounded-3xl overflow-hidden
+        shadow-sm hover:shadow-xl
+        transition-all duration-300
+      "
     >
-      {/* Image Container */}
-      <div className="relative bg-gray-100 rounded-2xl overflow-hidden"
+      {/* IMAGE WRAPPER */}
+      <div
         onClick={() => navigate(`/products/${product.id}`)}
-        >
-        {/* Image */}
+        className="relative cursor-pointer h-56 bg-gray-50 overflow-hidden"
+      >
         <img
           src={product.image}
-          alt={product.name}
-          className="w-full h-64 object-cover group-hover:scale-105 transition duration-500"
+          alt={product.title}
+          className="
+            w-full h-full object-cover
+            group-hover:scale-110
+            transition duration-700 ease-out
+          "
         />
 
-        {/* Hover Overlay */}
-        <div className="absolute inset-0 bg-gradient-to-t from-pink-300/70 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition duration-300 flex items-end p-4">
-          <p className="text-white text-sm font-medium drop-shadow-md">
-            {product.name}
+        {/* subtle gradient overlay for premium feel */}
+        <div className="absolute inset-0 bg-linear-to-t from-black/10 to-transparent opacity-0 group-hover:opacity-100 transition" />
+      </div>
+
+      {/* CONTENT */}
+      <div className="p-5 space-y-3">
+        {/* TITLE */}
+        <h3 className="text-sm font-medium text-gray-900 line-clamp-2 leading-snug">
+          {product.title}
+        </h3>
+
+        {/* PRICE */}
+        <div className="flex items-center justify-between">
+          <p className="text-lg font-semibold text-gray-900">
+            Rs {Number(product.price).toLocaleString()}
           </p>
-        </div>
-      </div>
 
-      {/* Colors */}
-      <div className="flex gap-2 mt-3">
-        {product.colors.map((color, i) => (
-          <span
-            key={i}
-            className="w-4 h-4 rounded-full border border-gray-300 shadow-sm"
-            style={{ backgroundColor: color }}
-          ></span>
-        ))}
-      </div>
-
-      {/* Title (visible normally) */}
-      <h3 className="mt-3 text-sm font-medium text-gray-800 line-clamp-2">
-        {product.name}
-      </h3>
-
-      {/* Rating */}
-      <div className="text-xs text-gray-500 mt-1">
-        ⭐ {product.rating} ({product.reviews})
-      </div>
-
-      {/* Price Section (Improved) */}
-      <div className="mt-2 flex items-center gap-2">
-        <p className="text-base font-semibold text-gray-900">
-          Rs {product.price.toLocaleString()}
-        </p>
-
-        {product.oldPrice && (
-          <p className="text-xs text-gray-400 line-through">
-            Rs {product.oldPrice.toLocaleString()}
-          </p>
-        )}
-
-        {product.oldPrice && (
-          <span className="text-xs text-pink-500 font-medium">
-            Save {product.oldPrice - product.price}
+          {/* small badge feel (optional luxury touch) */}
+          <span className="text-xs px-2 py-1 bg-gray-100 rounded-full text-gray-600">
+            In stock
           </span>
-        )}
+        </div>
+
+        {/* BUTTONS */}
+        <div className="flex gap-2 pt-2">
+          {/* ADD TO CART */}
+          <button
+            onClick={() => {
+              addToCart({ ...product, quantity: 1 });
+              toast.success("Added to cart 🛒");
+            }}
+            className="
+    flex-1 flex items-center justify-center gap-2
+    bg-black text-white text-sm
+    py-2.5 rounded-2xl
+    hover:bg-gray-800 active:scale-[0.98]
+    transition-all
+  "
+          >
+            <ShoppingCart size={16} />
+            Add to Cart
+          </button>
+
+          {/* VIEW */}
+          <button
+            onClick={() => navigate(`/products/${product.id}`)}
+            className="
+              w-12 flex items-center justify-center
+              bg-gray-100 text-gray-700
+              rounded-2xl hover:bg-gray-200
+              transition active:scale-[0.98]
+            "
+          >
+            <Eye size={16} />
+          </button>
+        </div>
       </div>
     </motion.div>
   );

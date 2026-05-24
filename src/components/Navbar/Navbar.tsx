@@ -1,81 +1,95 @@
-import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import logo from "@/assets/logo.png";
-import { useNavigate } from "react-router-dom";
-import { useCart } from "@/context/CartContext";
-
-const navItems = [
-  { name: "HOME", path: "/", icon: "🏠" },
-  { name: "PRODUCTS", path: "/products", icon: "🛍️" },
-  { name: "EMAIL", path: "/contact", icon: "📩" },
-  { name: "ABOUT", path: "/about", icon: "👶" },
-];
+import { getCategories } from "@/utils/api";
+import type { Category } from "@/types/category";
+import { motion, AnimatePresence } from "framer-motion";
 
 const Navbar = () => {
   const navigate = useNavigate();
-  const { state } = useCart();
-  const [menuOpen, setMenuOpen] = useState(false);
+
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [active, setActive] = useState<number | null>(null);
+
+  useEffect(() => {
+    getCategories().then(setCategories).catch(console.error);
+  }, []);
+
+  let hoverTimeout: any;
+
+  const handleEnter = (id: number) => {
+    clearTimeout(hoverTimeout);
+    setActive(id);
+  };
+
+  const handleLeave = () => {
+    hoverTimeout = setTimeout(() => setActive(null), 150);
+  };
 
   return (
-    <nav className="w-full h-30 px-6 md:px-10 backdrop-blur-md border-b border-gray-200  top-0 z-50 flex items-center">
-      <div className="flex items-center justify-between w-full">
-        {/* Logo (Left) */}
+    <nav className="w-full bg-white border-b border-gray-100 sticky top-0 z-60">
+      <div className="flex items-center justify-between h-20 px-4 md:px-10">
+
+        {/* Logo */}
         <Link to="/" className="flex items-center">
-          <img
-            src={logo}
-            alt="SuperDad Logo"
-            className="h-25 w-auto object-contain"
-          />
+          <img src={logo} className="h-14 object-contain" />
         </Link>
 
-        {/* Desktop Links (Right) */}
-        <ul className="hidden md:flex gap-10 text-xs tracking-wide items-center ml-auto">
-          {navItems.map((item) => (
-            <li key={item.name} className="relative group">
-              <Link
-                to={item.path}
-                className="flex items-center gap-2 cursor-pointer"
-              >
-                <span className="text-base">{item.icon}</span>
-                {item.name}
-              </Link>
+        {/* Categories */}
+        <ul className="hidden md:flex gap-10 items-center text-sm font-medium text-gray-700">
 
-              <span className="absolute left-0 -bottom-1 w-0 h-[1px] bg-black transition-all duration-300 group-hover:w-full"></span>
+          {categories.map((cat) => (
+            <li
+              key={cat.id}
+              className="relative group"
+              onMouseEnter={() => handleEnter(cat.id)}
+              onMouseLeave={handleLeave}
+            >
+              {/* CATEGORY CLICK */}
+              <div
+                onClick={() =>
+                  navigate(`/products?category=${cat.id}`)
+                }
+                className="cursor-pointer relative"
+              >
+                {cat.title}
+
+                <span className="absolute left-0 -bottom-1 w-0 h-0.5 bg-pink-300 transition-all duration-300 group-hover:w-full"></span>
+              </div>
+
+              {/* DROPDOWN */}
+              <AnimatePresence>
+                {active === cat.id && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: 10 }}
+                    transition={{ duration: 0.2 }}
+                    onMouseEnter={() => handleEnter(cat.id)}
+                    onMouseLeave={handleLeave}
+                    className="absolute top-full left-0 mt-3 bg-white shadow-xl border border-gray-100 rounded-2xl min-w-50 overflow-hidden"
+                  >
+                    {cat.subcategories.map((sub) => (
+                      <div
+                        key={sub.id}
+                        onClick={() =>
+                          navigate(
+                            `/products?category=${cat.id}&subcategory=${sub.id}`
+                          )
+                        }
+                        className="px-5 py-3 text-sm text-gray-600 hover:bg-pink-50 hover:text-gray-900 cursor-pointer transition"
+                      >
+                        {sub.title}
+                      </div>
+                    ))}
+                  </motion.div>
+                )}
+              </AnimatePresence>
+
             </li>
           ))}
-
-          {/* 🛒 CART ICON */}
-          <button onClick={() => navigate("/cart")} className="relative">
-            🛒
-            {state.items.length > 0 && (
-              <span className="absolute -top-2 -right-2 bg-black text-white text-xs px-2 rounded-full">
-                {state.items.length}
-              </span>
-            )}
-          </button>
         </ul>
 
-        {/* Mobile Hamburger */}
-        <div
-          onClick={() => setMenuOpen(!menuOpen)}
-          className="md:hidden cursor-pointer ml-auto"
-        >
-          <div
-            className={`w-6 h-0.5 bg-black transition ${
-              menuOpen ? "rotate-45 translate-y-1.5" : ""
-            }`}
-          ></div>
-          <div
-            className={`w-6 h-0.5 bg-black my-1 transition ${
-              menuOpen ? "opacity-0" : ""
-            }`}
-          ></div>
-          <div
-            className={`w-6 h-0.5 bg-black transition ${
-              menuOpen ? "-rotate-45 -translate-y-1.5" : ""
-            }`}
-          ></div>
-        </div>
       </div>
     </nav>
   );

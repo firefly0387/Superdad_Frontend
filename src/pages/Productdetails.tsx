@@ -1,156 +1,194 @@
 import { useParams, useNavigate } from "react-router-dom";
-import { useState } from "react";
-import { products } from "../data/products";
-import { useCart } from "../context/CartContext";
+import { useEffect, useState } from "react";
+import type { Product } from "@/types/product";
+import { getProductById } from "@/utils/api";
+import { useCart } from "@/context/CartContext";
+import ProductDetailsSkeleton from "@/components/skletons/ProductDetailsSkelton";
 
 const ProductDetails = () => {
-  const { addToCart } = useCart();
-
   const { id } = useParams();
   const navigate = useNavigate();
+  const { addToCart } = useCart();
 
-  const product = products.find((p) => p.id === Number(id));
-
-  const [selectedColor, setSelectedColor] = useState(product?.colors?.[0]);
+  const [product, setProduct] = useState<Product | null>(null);
   const [quantity, setQuantity] = useState(1);
+  const [showAddedMessage, setShowAddedMessage] = useState(false);
+  const [mainImage, setMainImage] = useState<string>("");
+  const [allImages, setAllImages] = useState<string[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  if (!product) {
-    return <div className="p-10">Product not found</div>;
+  useEffect(() => {
+    if (!id) return;
+
+    setLoading(true);
+
+    getProductById(Number(id))
+      .then((data) => {
+        setProduct(data);
+
+        const images: string[] = [];
+        if (data?.image) images.push(data.image);
+        if (Array.isArray(data.additional_images)) {
+          images.push(...data.additional_images);
+        }
+
+        setAllImages(images);
+        setMainImage(data?.image || "");
+      })
+      .catch(console.error)
+      .finally(() => setLoading(false));
+  }, [id]);
+
+  const handleAddToCart = () => {
+    if (!product) return;
+
+    addToCart({ ...product, quantity });
+    setShowAddedMessage(true);
+    setTimeout(() => setShowAddedMessage(false), 2000);
+  };
+
+  // ✅ SKELETON FIRST (YouTube style)
+  if (loading || !product) {
+    return <ProductDetailsSkeleton />;
   }
 
+  // Clean HTML
+  const cleanHTML = (html: string) => {
+    if (!html) return "";
+    return html
+      .replace(/<p>/g, "<p class='text-gray-700 leading-relaxed mb-4 text-base md:text-lg font-normal'>")
+      .replace(/<strong>/g, "<strong class='text-gray-900 font-semibold'>")
+      .replace(/<b>/g, "<b class='text-gray-900 font-semibold'>")
+      .replace(/<ul>/g, "<ul class='list-disc pl-6 mb-4 space-y-2'>")
+      .replace(/<li>/g, "<li class='text-gray-700 text-base md:text-lg mb-2'>")
+      .replace(/<h1>/g, "<h1 class='text-2xl md:text-3xl font-bold text-gray-800 mb-4'>")
+      .replace(/<h2>/g, "<h2 class='text-xl md:text-2xl font-semibold text-gray-800 mb-3 mt-4'>")
+      .replace(/<h3>/g, "<h3 class='text-lg md:text-xl font-semibold text-gray-800 mb-2'>")
+      .replace(/<span>/g, "<span class='text-gray-700'>");
+  };
+
   return (
-    <div className="min-h-screen bg-gray-50 px-6 py-10">
-      {/* Back */}
-      <button
-        onClick={() => navigate(-1)}
-        className="mb-6 text-sm text-gray-500 hover:text-black"
-      >
-        ← Back
-      </button>
+    <div className="min-h-screen bg-[#fdf8f5]">
 
-      <div className="max-w-6xl mx-auto grid md:grid-cols-2 gap-12">
-        {/* LEFT - IMAGE */}
-        <div>
-          <div className="rounded-2xl overflow-hidden bg-white shadow-sm">
-            <img
-              src={product.image}
-              alt={product.name}
-              className="w-full h-[500px] object-cover"
-            />
-          </div>
-
-          {/* Thumbnails (fake for now) */}
-          <div className="flex gap-3 mt-4">
-            {[1, 2, 3].map((_, i) => (
-              <div
-                key={i}
-                className="w-20 h-20 bg-gray-200 rounded-lg cursor-pointer hover:opacity-80"
-              />
-            ))}
+      {/* Added to cart popup */}
+      {showAddedMessage && (
+        <div className="fixed bottom-6 left-1/2 transform -translate-x-1/2 z-50 animate-fade-up">
+          <div className="bg-[#2d3e3a] text-white px-6 py-3 rounded-full shadow-xl text-sm">
+            ✨ Added to cart! ✨
           </div>
         </div>
+      )}
 
-        {/* RIGHT - DETAILS */}
-        <div className="bg-white p-6 rounded-2xl shadow-sm">
-          {/* Title */}
-          <h1 className="text-3xl font-semibold text-gray-800">
-            {product.name}
-          </h1>
+      <div className="max-w-7xl mx-auto px-5 py-8 md:py-12">
 
-          {/* Rating */}
-          <p className="text-sm text-gray-500 mt-2">
-            ⭐ {product.rating} ({product.reviews} reviews)
-          </p>
+        {/* Back button */}
+        <button
+          onClick={() => navigate(-1)}
+          className="mb-8 text-sm text-gray-500 hover:text-[#f5a3c7]"
+        >
+          ← back to shop
+        </button>
 
-          {/* Price */}
-          <div className="mt-4 flex items-center gap-3">
-            <p className="text-3xl font-bold text-black">
-              Rs {product.price.toLocaleString()}
-            </p>
+        {/* MAIN */}
+        <div className="grid md:grid-cols-2 gap-10 lg:gap-16 mb-16">
 
-            {product.oldPrice && (
-              <p className="text-gray-400 line-through">
-                Rs {product.oldPrice.toLocaleString()}
-              </p>
+          {/* LEFT IMAGE */}
+          <div>
+            <div className="rounded-3xl overflow-hidden mb-4">
+              <img
+                src={mainImage}
+                className="w-full h-[400px] md:h-[500px] object-cover"
+                alt={product.title}
+              />
+            </div>
+
+            {/* thumbnails */}
+            {allImages.length > 1 && (
+              <div className="flex gap-3 overflow-x-auto">
+                {allImages.map((img, idx) => (
+                  <button
+                    key={idx}
+                    onClick={() => setMainImage(img)}
+                    className={`w-20 h-20 rounded-xl overflow-hidden ${
+                      mainImage === img ? "ring-2 ring-pink-300" : ""
+                    }`}
+                  >
+                    <img src={img} className="w-full h-full object-cover" />
+                  </button>
+                ))}
+              </div>
             )}
           </div>
 
-          {/* Colors */}
-          <div className="mt-6">
-            <p className="text-sm font-medium text-gray-700 mb-2">
-              Select Color
-            </p>
-            <div className="flex gap-3">
-              {product.colors.map((color, i) => (
-                <button
-                  key={i}
-                  onClick={() => setSelectedColor(color)}
-                  className={`w-8 h-8 rounded-full border-2 ${
-                    selectedColor === color
-                      ? "border-black scale-110"
-                      : "border-gray-300"
-                  }`}
-                  style={{ backgroundColor: color }}
-                />
-              ))}
-            </div>
-          </div>
+          {/* RIGHT INFO */}
+          <div className="space-y-6">
 
-          {/* Quantity */}
-          <div className="mt-6">
-            <p className="text-sm font-medium text-gray-700 mb-2">Quantity</p>
-            <div className="flex items-center gap-3">
+            <h1 className="text-4xl font-bold">{product.title}</h1>
+
+            <p className="text-2xl font-semibold">
+              Rs {Number(product.price).toLocaleString()}
+            </p>
+
+            {/* Quantity */}
+            <div className="flex items-center gap-4">
               <button
-                onClick={() => setQuantity((q) => Math.max(1, q - 1))}
-                className="px-3 py-1 border rounded"
+                onClick={() => setQuantity(Math.max(1, quantity - 1))}
+                className="w-10 h-10 rounded-full border"
               >
                 -
               </button>
+
               <span>{quantity}</span>
+
               <button
-                onClick={() => setQuantity((q) => q + 1)}
-                className="px-3 py-1 border rounded"
+                onClick={() => setQuantity(quantity + 1)}
+                className="w-10 h-10 rounded-full border"
               >
                 +
               </button>
             </div>
-          </div>
 
-          {/* Description */}
-          <p className="mt-6 text-gray-500 text-sm leading-relaxed">
-            This premium baby product is crafted with ultra-soft materials,
-            ensuring maximum comfort and safety. Designed with care for modern
-            parents who want the best for their little ones 💖
-          </p>
+            {/* Buttons */}
+            <div className="flex gap-3">
+              <button
+                onClick={handleAddToCart}
+                className="flex-1 bg-black text-white py-3 rounded-full"
+              >
+                Add to Cart
+              </button>
 
-          {/* Buttons */}
-          <div className="mt-8 flex gap-4">
-            <button
-              onClick={() =>
-                addToCart({
-                  ...product,
-                  selectedColor,
-                  quantity,
-                })
-              }
-              className="flex-1 bg-black text-white py-3 rounded-xl hover:bg-gray-800 transition"
-            >
-              Add to Cart 🛒
-            </button>
-
-            <button className="flex-1 border border-black py-3 rounded-xl hover:bg-black hover:text-white transition">
-              Buy Now ⚡
-            </button>
-          </div>
-
-          {/* Extra Info */}
-          <div className="mt-8 border-t pt-6 text-sm text-gray-600 space-y-2">
-            <p>🚚 Free delivery across Nepal</p>
-            <p>🔁 7-day return policy</p>
-            <p>🔒 Secure payment</p>
+              <button
+                onClick={() => {
+                  addToCart({ ...product, quantity });
+                  navigate("/checkout");
+                }}
+                className="flex-1 border py-3 rounded-full"
+              >
+                Buy Now
+              </button>
+            </div>
           </div>
         </div>
+
+        {/* DESCRIPTION */}
+        {product.description && (
+          <div className="border-t pt-10">
+            <h2 className="text-2xl font-bold mb-4">Description</h2>
+            <div dangerouslySetInnerHTML={{ __html: cleanHTML(product.description) }} />
+          </div>
+        )}
       </div>
+
+      {/* animation */}
+      <style>{`
+        @keyframes fade-up {
+          from { opacity: 0; transform: translate(-50%, 20px); }
+          to { opacity: 1; transform: translate(-50%, 0); }
+        }
+        .animate-fade-up {
+          animation: fade-up 0.3s ease-out;
+        }
+      `}</style>
     </div>
   );
 };

@@ -11,13 +11,18 @@ import ProductDetails from "./pages/Productdetails";
 import CartPage from "./pages/CartPage";
 import CheckoutPage from "./pages/CheckoutPage";
 import SuccessPage from "./pages/SuccessPage";
+import ScrollToTop from "./components/home/ScrollToTop";
+import ShippingPolicy from "./pages/ShippingPolicy";
+import PaymentPolicy from "./pages/PaymentPolicy";
+import RefundPolicy from "./pages/RefundPolicy";
+import TermsAndConditions from "./pages/TermsAndConditions";
 
 function App() {
   return (
-    <CartProvider> {/* ✅ wrap everything */}
+    <CartProvider>
       <BrowserRouter>
+        <ScrollToTop />
         <Routes>
-
           <Route element={<MainLayout />}>
             <Route path="/" element={<Home />} />
             <Route path="/products" element={<Products />} />
@@ -27,8 +32,12 @@ function App() {
             <Route path="/cart" element={<CartPage />} />
             <Route path="/checkout" element={<CheckoutPage />} />
             <Route path="/success" element={<SuccessPage />} />
+            <Route path="/shipping-policy" element={<ShippingPolicy />} />
+            <Route path="/refund-policy" element={<RefundPolicy />} />
+            <Route path="/payment-policy" element={<PaymentPolicy />} />
+            <Route path="Terms-and-Conditions" element={<TermsAndConditions/>} />
+            {/* <Route path="privacy-policy" element={} /> */}
           </Route>
-
         </Routes>
       </BrowserRouter>
     </CartProvider>

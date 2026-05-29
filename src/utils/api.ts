@@ -1,11 +1,12 @@
 import axios from "axios";
 import type { Product } from "@/types/product";
-import type { Category} from "@/types/category";
+import type { Category } from "@/types/category";
 import type { SubCategory } from "@/types/subCategory";
 import type { HeroResponse } from "@/types/hero";
+import type { ContactFormData, ContactResponse } from "@/types/contact";
+import type { OrderData, OrderResponse } from "@/types/order";
 
-const API_BASE_URL =
-  import.meta.env.VITE_DOMAIN || "http://127.0.0.1:8000/api";
+const API_BASE_URL = import.meta.env.VITE_DOMAIN || "http://127.0.0.1:8000/api";
 
 const cleanApiBaseUrl = API_BASE_URL.replace(/\/$/, "");
 
@@ -54,28 +55,59 @@ export const getHotDeals = async (): Promise<Product[]> => {
 };
 
 // CART
-export const addToCartApi = async (productId: number, quantity = 1) => {
-  const { data } = await api.post("/product/cart/add/", {
-    product_id: productId,
-    quantity,
-  });
+export const addToCartApi = async (productId: number, quantity = 1): Promise<any> => {
+  try {
+    let cart_id = localStorage.getItem("cart_id");
 
-  return data;
+    const payload: any = {
+      product_id: productId,
+      quantity,
+    };
+
+    // Only include cart_id if it exists
+    if (cart_id) {
+      payload.cart_id = cart_id;
+    }
+
+    const { data } = await api.post("/product/cart/add/", payload);
+
+    // Store cart_id if returned from backend
+    if (data.cart_id) {
+      localStorage.setItem("cart_id", data.cart_id);
+    }
+
+    return data;
+  } catch (error: any) {
+    // If cart not found, retry without cart_id
+    if (error.response?.status === 404 && localStorage.getItem("cart_id")) {
+      localStorage.removeItem("cart_id");
+      return addToCartApi(productId, quantity);
+    }
+    throw error;
+  }
 };
 
 export const getCartApi = async () => {
   const cart_id = localStorage.getItem("cart_id");
 
-  // no cart created yet → avoid 404
+  // no cart created yet → return empty cart
   if (!cart_id) {
-    return { items: [] };
+    return { items: [], count: 0, total: 0 };
   }
 
-  const { data } = await api.get("/product/cart/view/", {
-    params: { cart_id },
-  });
-
-  return data;
+  try {
+    const { data } = await api.get("/product/cart/view/", {
+      params: { cart_id },
+    });
+    return data;
+  } catch (error: any) {
+    // If cart not found (404), clear invalid cart_id and return empty cart
+    if (error.response?.status === 404) {
+      localStorage.removeItem("cart_id");
+      return { items: [], count: 0, total: 0 };
+    }
+    throw error;
+  }
 };
 
 export const removeCartItemApi = async (id: number) => {
@@ -85,10 +117,40 @@ export const removeCartItemApi = async (id: number) => {
 export const updateCartItemApi = async (
   id: number,
   cart: string,
-  quantity: number | string
+  quantity: number | string,
 ) => {
   return api.patch(`/product/cart/item/update/${id}/`, {
     cart_id: cart,
     quantity,
   });
+};
+
+// CONTACT US
+export const submitContactForm = async (
+  data: ContactFormData,
+): Promise<ContactResponse> => {
+  try {
+    const response = await api.post("/product/contact-us/", {
+      name: data.name,
+      email: data.email,
+      contact: Number(data.contact), // Ensure it's a number
+      message: data.message,
+    });
+    return response.data;
+  } catch (error: any) {
+    console.error("API Error:", error.response?.data);
+    throw error;
+  }
+};
+
+export const createOrder = async (
+  orderData: OrderData,
+): Promise<OrderResponse> => {
+  try {
+    const response = await api.post("/product/order/create/", orderData);
+    return response.data;
+  } catch (error: any) {
+    console.error("Order API Error:", error.response?.data);
+    throw error;
+  }
 };

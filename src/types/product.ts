@@ -1,5 +1,5 @@
 export interface ProductCategory {
-  id: number;              // ✅ IMPORTANT for filtering
+  id: number;
   category_title: string;
 }
 
@@ -9,15 +9,28 @@ export interface ProductSubCategory {
 }
 
 // ========================
-// FAQ
+// IMAGE (FIXED)
 // ========================
-export interface ProductFAQ {
-  question: string;
-  answer: string;
+export interface ProductImage {
+  id: number;
+  image: string;
+  caption: string | null;
+  created_at: string;
 }
 
 // ========================
-// REVIEW
+// FAQ (FIXED)
+// ========================
+export interface ProductFAQ {
+  id: number;
+  product: number;
+  question: string;
+  answer: string;
+  created_at: string;
+}
+
+// ========================
+// REVIEW (FIXED OK)
 // ========================
 export interface ProductReview {
   id: number;
@@ -27,14 +40,16 @@ export interface ProductReview {
 }
 
 // ========================
-// MAIN PRODUCT
+// MAIN PRODUCT (COMPLETE)
 // ========================
 export interface Product {
-  hot_deal?: boolean;
   id: number;
+
+  hot_deal: boolean;
 
   categories: ProductCategory[];
   sub_categories: ProductSubCategory[];
+  colors?: Color[];
 
   title: string;
   description: string;
@@ -42,8 +57,10 @@ export interface Product {
 
   color: string;
   image: string;
+  add_image?: string | null;
 
-  additional_images: string[];
+  // ✅ FIXED (was string[])
+  additional_images: ProductImage[];
 
   faqs: ProductFAQ[];
   reviews: ProductReview[];
@@ -51,6 +68,9 @@ export interface Product {
   quantity: number;
 
   price: string;
+  discount_per: string;     // ✅ MISSING in your original
+  final_price: number;       // ✅ YOU USE THIS IN UI
+
   average_rating: number;
 
   created_at: string;
@@ -73,4 +93,10 @@ export interface ProductListResponse {
   current_page: number;
 
   results: Product[];
+}
+
+export interface Color {
+  id: number;
+  name: string;
+  hex_code: string;
 }

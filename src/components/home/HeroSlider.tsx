@@ -9,7 +9,7 @@ const HeroSlider = () => {
   const [isPaused, setIsPaused] = useState(false);
 
   const touchStartX = useRef(0);
-  const touchEndX = useRef(0);  
+  const touchEndX = useRef(0);
 
   // Fetch data
   useEffect(() => {
@@ -80,6 +80,11 @@ const HeroSlider = () => {
             <img
               src={slide.image}
               alt={slide.title}
+              loading={current === 0 ? "eager" : "lazy"}
+              fetchPriority={current === 0 ? "high" : "low"}
+              width={1920}
+              height={1080}
+              decoding="async"
               className="w-full h-screen object-cover"
             />
 

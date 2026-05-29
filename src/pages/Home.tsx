@@ -1,52 +1,48 @@
-import { useEffect, useState } from "react";
-import HeroSlider from "@/components/home/HeroSlider";
-import TopRatedSection from "@/components/home/TopRated";
-import Slogan from "@/components/home/Slogan";
-import HotDealsSection from "@/components/home/HotDeals";
-import Reviews from "@/components/review/Reviews";
-import CategorySlider from "@/components/home/CategorySlider";
-import Faqs from "@/components/faqs/Faqs";
-import InstagramSection from "@/components/home/InstgramSection";
+import { lazy, Suspense } from "react";
 
-import BabyLoader from "@/components/loader/BabyLoader";
-import { preloadImage } from "@/utils/preLoadImage";
+const HeroSlider = lazy(() => import("@/components/home/HeroSlider"));
+const CategorySlider = lazy(() => import("@/components/home/CategorySlider"));
+const TopRatedSection = lazy(() => import("@/components/home/TopRated"));
+const Slogan = lazy(() => import("@/components/home/Slogan"));
+const HotDealsSection = lazy(() => import("@/components/home/HotDeals"));
+const Reviews = lazy(() => import("@/components/review/Reviews"));
+const Faqs = lazy(() => import("@/components/faqs/Faqs"));
+const InstagramSection = lazy(() => import("@/components/home/InstgramSection"));
 
 const Home = () => {
-  const [ready, setReady] = useState(false);
-
-const delay = (ms: number) =>
-  new Promise((resolve) => setTimeout(resolve, ms));
-
-useEffect(() => {
-  const boot = async () => {
-    try {
-      const heroImage =
-        "http://127.0.0.1:8000/media/hero/carousel/image/your-first.jpg";
-
-      await Promise.all([
-        preloadImage(heroImage),
-        delay(1200), // ⬅️ minimum loader time
-      ]);
-    } finally {
-      setReady(true);
-    }
-  };
-
-  boot();
-}, []);
-
-  if (!ready) return <BabyLoader />;
-
   return (
     <div className="bg-[#faf9f7]">
-      <HeroSlider />
-      <TopRatedSection />
-      <Slogan />
-      <HotDealsSection />
-      <Reviews />
-      <CategorySlider />
-      <Faqs />
-      <InstagramSection />
+      <Suspense fallback={<div className="h-screen" />}>
+        <HeroSlider />
+      </Suspense>
+
+      <Suspense fallback={null}>
+        <CategorySlider />
+      </Suspense>
+
+      <Suspense fallback={null}>
+        <TopRatedSection />
+      </Suspense>
+
+      <Suspense fallback={null}>
+        <Slogan />
+      </Suspense>
+
+      <Suspense fallback={null}>
+        <HotDealsSection />
+      </Suspense>
+
+      <Suspense fallback={null}>
+        <Reviews />
+      </Suspense>
+
+      <Suspense fallback={null}>
+        <Faqs />
+      </Suspense>
+
+      <Suspense fallback={null}>
+        <InstagramSection />
+      </Suspense>
     </div>
   );
 };

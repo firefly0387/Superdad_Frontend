@@ -1,19 +1,16 @@
 import type { Category } from "@/types/category";
+import { Filter, Tag, Flame } from "lucide-react";
 
 type Props = {
   categories: Category[];
   category: number | "";
   setCategory: (v: number | "") => void;
-
   minPrice: number;
   setMinPrice: (v: number) => void;
-
   maxPrice: number;
   setMaxPrice: (v: number) => void;
-
   hotDeals: boolean;
   setHotDeals: (v: boolean) => void;
-
   totalCount: number;
 };
 
@@ -21,7 +18,6 @@ const ProductSidebar = ({
   categories,
   category,
   setCategory,
-  minPrice,
   maxPrice,
   setMaxPrice,
   hotDeals,
@@ -29,23 +25,27 @@ const ProductSidebar = ({
   totalCount,
 }: Props) => {
   return (
-    <aside className="rounded-[28px] border bg-white/80 backdrop-blur-xl p-5 space-y-6 shadow-sm">
-      <div>
-        <h3 className="text-lg font-semibold">Filters</h3>
-        <p className="text-sm text-gray-500">{totalCount} results</p>
+    <aside className="rounded-2xl border border-[#D4C4A8] bg-white/60 backdrop-blur-sm p-5 space-y-6 shadow-sm sticky top-35">
+      <div className="border-b border-[#D4C4A8] pb-4">
+        <div className="flex items-center gap-2 mb-1">
+          <Filter size={18} className="text-[#3E2723]" />
+          <h3 className="text-lg font-semibold text-[#3E2723]">Filters</h3>
+        </div>
+        <p className="text-sm text-[#795548]">{totalCount} products found</p>
       </div>
 
       {/* CATEGORY */}
       <div>
-        <p className="text-sm font-medium mb-2">Category</p>
+        <label className="text-sm font-medium text-[#3E2723] mb-2 flex items-center gap-2">
+          <Tag size={14} />
+          Category
+        </label>
         <select
           value={category}
-          onChange={(e) =>
-            setCategory(e.target.value ? Number(e.target.value) : "")
-          }
-          className="w-full h-11 rounded-xl border px-3 text-sm"
+          onChange={(e) => setCategory(e.target.value ? Number(e.target.value) : "")}
+          className="w-full h-11 rounded-xl border border-[#D4C4A8] px-3 text-sm text-[#3E2723] bg-white/50 focus:border-[#C4A747] focus:ring-1 focus:ring-[#C4A747] outline-none"
         >
-          <option value="">All</option>
+          <option value="">All Categories</option>
           {categories.map((c) => (
             <option key={c.id} value={c.id}>
               {c.title}
@@ -56,37 +56,41 @@ const ProductSidebar = ({
 
       {/* PRICE */}
       <div>
-        <p className="text-sm font-medium mb-2">Price</p>
-
+        <label className="text-sm font-medium text-[#3E2723] mb-2 block">Price Range</label>
+        
         <input
           type="range"
           min={0}
           max={50000}
           value={maxPrice}
           onChange={(e) => setMaxPrice(Number(e.target.value))}
-          className="w-full"
+          className="w-full h-2 rounded-lg appearance-none cursor-pointer"
+          style={{
+            background: `linear-gradient(to right, #C4A747 0%, #C4A747 ${(maxPrice / 50000) * 100}%, #D4C4A8 ${(maxPrice / 50000) * 100}%, #D4C4A8 100%)`
+          }}
         />
 
-        <div className="flex justify-between text-xs text-gray-500 mt-1">
-          <span>{minPrice}</span>
-          <span>{maxPrice}</span>
+        <div className="flex justify-between text-xs text-[#795548] mt-2">
+          <span>Rs 0</span>
+          <span>Rs {maxPrice.toLocaleString()}</span>
         </div>
       </div>
 
       {/* HOT DEALS */}
       <div>
-        <p className="text-sm font-medium mb-2">Special</p>
+        <label className="text-sm font-medium text-[#3E2723] mb-2 block">Special Offers</label>
 
         <button
           type="button"
           onClick={() => setHotDeals(!hotDeals)}
-          className={`w-full h-11 rounded-2xl text-sm font-medium transition-all duration-300 border ${
+          className={`w-full h-11 rounded-xl text-sm font-medium transition-all flex items-center justify-center gap-2 ${
             hotDeals
-              ? "bg-black text-white border-black shadow-[0_10px_25px_rgba(0,0,0,0.08)]"
-              : "bg-gray-50 text-gray-700 border-gray-200 hover:bg-white"
+              ? "bg-[#3E2723] text-white shadow-sm"
+              : "bg-white/50 text-[#3E2723] border border-[#D4C4A8] hover:bg-[#f5e7db]"
           }`}
         >
-          🔥 Hot Deals
+          <Flame size={16} className={hotDeals ? "text-[#C4A747]" : "text-[#795548]"} />
+          Hot Deals
         </button>
       </div>
     </aside>

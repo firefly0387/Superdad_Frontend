@@ -1,3 +1,5 @@
+import { ChevronLeft, ChevronRight } from "lucide-react";
+
 type Props = {
   currentPage: number;
   totalPages: number;
@@ -13,28 +15,32 @@ const Pagination = ({
   hasPrevious,
   onPageChange,
 }: Props) => {
+  if (totalPages <= 1) return null;
+
   return (
     <div className="pt-4 flex justify-center">
-      <div className="flex items-center gap-3 rounded-[24px] border border-white/70 bg-white/75 backdrop-blur-xl px-4 py-2 shadow-[0_10px_30px_rgba(0,0,0,0.04)]">
+      <div className="flex items-center gap-2 rounded-xl border border-[#E8D5B7] bg-white/80 backdrop-blur-sm px-3 py-2 shadow-sm">
         <button
           disabled={!hasPrevious}
           onClick={() => onPageChange(currentPage - 1)}
-          className="px-4 h-10 rounded-xl text-sm text-gray-600 transition hover:bg-gray-50 disabled:opacity-30"
+          className="px-3 h-9 rounded-lg text-sm text-[#5C3D2E] transition hover:bg-[#f5e7db] disabled:opacity-30 disabled:cursor-not-allowed flex items-center gap-1"
         >
+          <ChevronLeft size={16} />
           Prev
         </button>
 
-        <span className="text-sm text-gray-600 px-2">
-          Page <span className="font-medium text-black">{currentPage}</span> of{" "}
-          <span className="font-medium text-black">{totalPages}</span>
+        <span className="text-sm text-[#5C3D2E] px-3">
+          Page <span className="font-semibold">{currentPage}</span> of{" "}
+          <span className="font-semibold">{totalPages}</span>
         </span>
 
         <button
           disabled={!hasNext}
           onClick={() => onPageChange(currentPage + 1)}
-          className="px-4 h-10 rounded-xl text-sm text-gray-600 transition hover:bg-gray-50 disabled:opacity-30"
+          className="px-3 h-9 rounded-lg text-sm text-[#5C3D2E] transition hover:bg-[#f5e7db] disabled:opacity-30 disabled:cursor-not-allowed flex items-center gap-1"
         >
           Next
+          <ChevronRight size={16} />
         </button>
       </div>
     </div>

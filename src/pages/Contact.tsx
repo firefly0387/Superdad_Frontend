@@ -214,7 +214,7 @@ const ContactPage = () => {
 
   if (loading) {
     return <ContactPageSkeleton />;
-  }
+  } 
 
   return (
     <section className="min-h-screen bg-[#f5e7db] py-16 md:py-20 pt-27.5 md:pt-30">

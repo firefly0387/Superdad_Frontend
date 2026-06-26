@@ -9,6 +9,7 @@ import {
   Minus, Plus, ShoppingCart, Zap, ChevronLeft, 
   ChevronRight, Check, Truck, Shield, RefreshCw, Star, Palette 
 } from "lucide-react";
+import ProductReviews from "@/components/products/ProductReviews";
 
 const ProductDetails = () => {
   const { id } = useParams();
@@ -218,10 +219,6 @@ const ProductDetails = () => {
                 <span className="font-semibold text-[#3E2723] ml-2">{product.average_rating || 0}</span>
                 <span className="text-[#795548]">/ 5</span>
               </div>
-              <span className="text-[#D4C4A8]">|</span>
-              <button className="text-sm text-[#795548] hover:text-[#5C3D2E] transition-colors hover:underline">
-                Write a review
-              </button>
             </div>
 
             {/* Price */}
@@ -452,6 +449,8 @@ const ProductDetails = () => {
               </div>
             </div>
           )}
+
+          <ProductReviews productId={product.id} />
         </div>
       </div>
 

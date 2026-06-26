@@ -49,7 +49,7 @@ export interface Product {
 
   categories: ProductCategory[];
   sub_categories: ProductSubCategory[];
-  colors?: Color[];
+  colors: Color[];
 
   title: string;
   description: string;

@@ -173,29 +173,6 @@ const cardVariants: Variants = {
             </motion.div>
           ))}
         </motion.div>
-
-        {/* View All Reviews Button - Matching TopRated style */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.5, delay: 0.6 }}
-          className="text-center mt-12"
-        >
-          <button
-            onClick={() => (window.location.href = "/reviews")}
-            className="inline-flex items-center gap-2 px-8 py-2.5 rounded-full bg-white/80 backdrop-blur-sm border border-[#E8D5B7] text-[#5C3D2E] text-sm font-medium hover:border-[#8B6914] hover:text-[#8B6914] hover:shadow-md transition-all group"
-          >
-            <span>Read all reviews</span>
-            <motion.span
-              animate={{ x: [0, 3, 0] }}
-              transition={{ duration: 1, repeat: Infinity, delay: 2 }}
-              className="group-hover:translate-x-1 transition-transform"
-            >
-              →
-            </motion.span>
-          </button>
-        </motion.div>
       </div>
       <div className="max-w-7xl mx-auto px-4 md:px-12">
         <motion.div

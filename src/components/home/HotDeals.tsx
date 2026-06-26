@@ -12,13 +12,26 @@ import {
   Clock,
   ChevronLeft,
   ChevronRight,
+
 } from "lucide-react";
 
+// Update your Product type to include color objects
+interface Color {
+  id: number;
+  name: string;
+  hex_code: string;
+}
+
+interface ProductWithColors extends Product {
+  colors: Color[];
+}
+
 export default function HotDealsSection() {
-  const [hotDeals, setHotDeals] = useState<Product[]>([]);
+  const [hotDeals, setHotDeals] = useState<ProductWithColors[]>([]);
   const [loading, setLoading] = useState(true);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [hoveredCard, setHoveredCard] = useState<number | null>(null);
+  const [selectedColor, setSelectedColor] = useState<Record<number, Color>>({});
   const navigate = useNavigate();
   const { addToCart } = useCart();
 
@@ -28,6 +41,15 @@ export default function HotDealsSection() {
         setLoading(true);
         const data = await getHotDeals();
         setHotDeals(data.slice(0, 4));
+        
+        // Initialize selected colors with first available color for each product
+        const initialColors: Record<number, Color> = {};
+        data.slice(0, 4).forEach((product: ProductWithColors) => {
+          if (product.colors && product.colors.length > 0) {
+            initialColors[product.id] = product.colors[0];
+          }
+        });
+        setSelectedColor(initialColors);
       } catch (error) {
         console.error(error);
       } finally {
@@ -38,11 +60,12 @@ export default function HotDealsSection() {
     fetchHotDeals();
   }, []);
 
-  const handleAddToCart = (item: Product, e: React.MouseEvent) => {
+  const handleAddToCart = (item: ProductWithColors, e: React.MouseEvent, selectedColorObj?: Color) => {
     e.stopPropagation();
     const cartItem = { 
       ...item, 
-      quantity: 1
+      quantity: 1,
+      selectedColor: selectedColorObj || selectedColor[item.id]
     };
     addToCart(cartItem);
     toast.success("Added to cart 🛒", {
@@ -54,6 +77,11 @@ export default function HotDealsSection() {
         border: "1px solid #8B6914",
       },
     });
+  };
+
+  const handleColorSelect = (productId: number, color: Color, e: React.MouseEvent) => {
+    e.stopPropagation();
+    setSelectedColor(prev => ({ ...prev, [productId]: color }));
   };
 
   const nextSlide = () => {
@@ -121,6 +149,8 @@ export default function HotDealsSection() {
           {hotDeals.map((item, idx) => {
             const hasSecondaryImage = !!item.add_image;
             const isHovered = hoveredCard === item.id;
+            const currentSelectedColor = selectedColor[item.id];
+            const hasColors = item.colors && item.colors.length > 0;
             
             return (
               <motion.div
@@ -158,7 +188,7 @@ export default function HotDealsSection() {
 
                   {/* Discount Badge */}
                   {item.discount_per && (
-                    <div className="absolute top-3 left-3 flex items-center gap-1 bg-linear-to-r from-[#8B6914] to-orange-500 text-white px-2 py-1 rounded-full text-xs font-medium shadow-md z-10">
+                    <div className="absolute top-3 left-3 flex items-center gap-1 bg-gradient-to-r from-[#8B6914] to-orange-500 text-white px-2 py-1 rounded-full text-xs font-medium shadow-md z-10">
                       <Flame size={10} />
                       {item.discount_per}% OFF
                     </div>
@@ -171,7 +201,7 @@ export default function HotDealsSection() {
                         e.stopPropagation();
                         handleAddToCart(item, e);
                       }}
-                      className="bg-white text-[#5C3D2E] px-5 py-2 rounded-full text-sm font-medium flex items-center gap-2 transform scale-90 group-hover:scale-100 transition-opacity duration-300 shadow-md"
+                      className="bg-white text-[#5C3D2E] px-5 py-2 rounded-full text-sm font-medium flex items-center gap-2 transform scale-90 group-hover:scale-100 transition duration-300 shadow-md"
                     >
                       <ShoppingCart size={14} />
                       Add to Cart
@@ -184,6 +214,31 @@ export default function HotDealsSection() {
                   <h3 className="text-[#5C3D2E] font-medium mb-1.5 line-clamp-2 group-hover:text-[#8B6914] transition-colors min-h-12">
                     {item.title}
                   </h3>
+                  
+                  {/* Color Selection */}
+                  {hasColors && (
+                    <div className="mb-3">
+                      <div className="flex items-center gap-1.5 flex-wrap">
+                        <div className="flex gap-1.5">
+                          {item.colors.map((color) => (
+                            <button
+                              key={color.id}
+                              onClick={(e) => handleColorSelect(item.id, color, e)}
+                              className={`w-5 h-5 rounded-full border-2 transition-all duration-200 ${
+                                currentSelectedColor?.id === color.id
+                                  ? 'border-[#8B6914] scale-110 ring-1 ring-[#8B6914]/50'
+                                  : 'border-white/50 hover:scale-105'
+                              }`}
+                              style={{ backgroundColor: color.hex_code }}
+                              title={color.name}
+                              aria-label={`Select ${color.name} color`}
+                            />
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                  
                   <div className="flex items-baseline gap-2 mt-auto">
                     <span className="text-lg font-semibold text-[#5C3D2E]">
                       Rs {Number(item.final_price || item.price).toLocaleString()}
@@ -223,7 +278,7 @@ export default function HotDealsSection() {
 
                   {/* Discount Badge */}
                   {hotDeals[currentIndex].discount_per && (
-                    <div className="absolute top-3 left-3 flex items-center gap-1 bg-linear-to-r from-[#8B6914] to-orange-500 text-white px-2 py-1 rounded-full text-xs font-medium shadow-md z-10">
+                    <div className="absolute top-3 left-3 flex items-center gap-1 bg-gradient-to-r from-[#8B6914] to-orange-500 text-white px-2 py-1 rounded-full text-xs font-medium shadow-md z-10">
                       <Flame size={10} />
                       {hotDeals[currentIndex].discount_per}% OFF
                     </div>
@@ -244,6 +299,30 @@ export default function HotDealsSection() {
                   <h3 className="text-[#5C3D2E] font-medium mb-1.5 line-clamp-2 min-h-12">
                     {hotDeals[currentIndex].title}
                   </h3>
+                  
+                  {/* Color Selection - Mobile */}
+                  {hotDeals[currentIndex].colors && hotDeals[currentIndex].colors.length > 0 && (
+                    <div className="mb-3">
+                      <div className="flex items-center gap-1.5 flex-wrap">
+                        <div className="flex gap-1.5">
+                          {hotDeals[currentIndex].colors.map((color) => (
+                            <button
+                              key={color.id}
+                              onClick={(e) => handleColorSelect(hotDeals[currentIndex].id, color, e)}
+                              className={`w-5 h-5 rounded-full border-2 transition-all duration-200 ${
+                                selectedColor[hotDeals[currentIndex].id]?.id === color.id
+                                  ? 'border-[#8B6914] scale-110 ring-1 ring-[#8B6914]/50'
+                                  : 'border-white/50 hover:scale-105'
+                              }`}
+                              style={{ backgroundColor: color.hex_code }}
+                              title={color.name}
+                            />
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                  
                   <div className="flex items-baseline gap-2">
                     <span className="text-lg font-semibold text-[#5C3D2E]">
                       Rs {Number(hotDeals[currentIndex].final_price || hotDeals[currentIndex].price).toLocaleString()}
@@ -301,7 +380,7 @@ export default function HotDealsSection() {
         >
           <button
             onClick={() => navigate("/products")}
-            className="inline-flex items-center gap-2 px-8 py-3 rounded-full bg-[#5C3D2E] text-white text-sm font-medium hover:bg-[#4A3226] transition-opacity group"
+            className="inline-flex items-center gap-2 px-8 py-3 rounded-full bg-[#5C3D2E] text-white text-sm font-medium hover:bg-[#4A3226] transition group"
           >
             <span>View All Hot Deals</span>
             <TrendingUp size={14} className="group-hover:translate-x-1 transition-transform" />

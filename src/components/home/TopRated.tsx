@@ -4,6 +4,7 @@ import { Star, ShoppingCart, TrendingUp, Sparkles, ChevronLeft, ChevronRight } f
 import { useNavigate } from "react-router-dom";
 import { getPopularProducts } from "@/utils/api";
 import type { Product } from "@/types/product";
+import type { Color } from "@/types/product";
 import { useCart } from "@/context/CartContext";
 import { toast } from "sonner";
 
@@ -12,6 +13,7 @@ export default function TopRatedSection() {
   const [loading, setLoading] = useState(true);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [hoveredCard, setHoveredCard] = useState<number | null>(null);
+  const [selectedColors, setSelectedColors] = useState<Record<number, Color>>({});
   const navigate = useNavigate();
   const { addToCart } = useCart();
 
@@ -24,6 +26,15 @@ export default function TopRatedSection() {
           .sort((a, b) => (b.average_rating || 0) - (a.average_rating || 0))
           .slice(0, 4);
         setTopRated(sorted);
+        
+        // Initialize selected colors with first available color for each product
+        const initialColors: Record<number, Color> = {};
+        sorted.forEach((product: Product) => {
+          if (product.colors && product.colors.length > 0) {
+            initialColors[product.id] = product.colors[0];
+          }
+        });
+        setSelectedColors(initialColors);
       } catch (error) {
         console.error(error);
       } finally {
@@ -37,7 +48,8 @@ export default function TopRatedSection() {
     e.stopPropagation();
     const cartItem = { 
       ...item, 
-      quantity: 1
+      quantity: 1,
+      selectedColor: selectedColors[item.id]
     };
     addToCart(cartItem);
     toast.success("Added to cart 🛒", {
@@ -49,6 +61,11 @@ export default function TopRatedSection() {
         border: "1px solid #8B6914",
       },
     });
+  };
+
+  const handleColorSelect = (productId: number, color: Color, e: React.MouseEvent) => {
+    e.stopPropagation();
+    setSelectedColors(prev => ({ ...prev, [productId]: color }));
   };
 
   const nextSlide = () => {
@@ -116,6 +133,8 @@ export default function TopRatedSection() {
           {topRated.map((item, idx) => {
             const hasSecondaryImage = !!item.add_image;
             const isHovered = hoveredCard === item.id;
+            const currentSelectedColor = selectedColors[item.id];
+            const hasColors = item.colors && item.colors.length > 0;
             
             return (
               <motion.div
@@ -151,6 +170,7 @@ export default function TopRatedSection() {
                     />
                   )}
                   
+                  {/* Rating Badge */}
                   {item.average_rating && (
                     <div className="absolute top-3 left-3 flex items-center gap-1 bg-white/80 backdrop-blur-sm px-2 py-1 rounded-full z-10">
                       <Star size={12} fill="#fbbf24" className="text-amber-400" />
@@ -160,13 +180,14 @@ export default function TopRatedSection() {
                     </div>
                   )}
 
+                  {/* Quick Add Button */}
                   <div className="absolute inset-0 bg-[#5C3D2E]/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center z-10">
                     <button
                       onClick={(e) => {
                         e.stopPropagation();
                         handleAddToCart(item, e);
                       }}
-                      className="bg-white text-[#5C3D2E] px-5 py-2 rounded-full text-sm font-medium flex items-center gap-2 transform scale-90 group-hover:scale-100 transition-opacity duration-300 shadow-md"
+                      className="bg-white text-[#5C3D2E] px-5 py-2 rounded-full text-sm font-medium flex items-center gap-2 transform scale-90 group-hover:scale-100 transition duration-300 shadow-md"
                     >
                       <ShoppingCart size={14} />
                       Add to Cart
@@ -179,6 +200,31 @@ export default function TopRatedSection() {
                   <h3 className="text-[#5C3D2E] font-medium mb-1.5 line-clamp-2 group-hover:text-[#8B6914] transition-colors min-h-[48px]">
                     {item.title}
                   </h3>
+                  
+                  {/* Color Selection */}
+                  {hasColors && (
+                    <div className="mb-3">
+                      <div className="flex items-center gap-1.5 flex-wrap">
+                        <div className="flex gap-1.5">
+                          {item.colors.map((color) => (
+                            <button
+                              key={color.id}
+                              onClick={(e) => handleColorSelect(item.id, color, e)}
+                              className={`w-5 h-5 rounded-full border-2 transition-all duration-200 ${
+                                currentSelectedColor?.id === color.id
+                                  ? 'border-[#8B6914] scale-110 ring-1 ring-[#8B6914]/50'
+                                  : 'border-white/50 hover:scale-105'
+                              }`}
+                              style={{ backgroundColor: color.hex_code }}
+                              title={color.name}
+                              aria-label={`Select ${color.name} color`}
+                            />
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                  
                   <div className="flex items-baseline gap-2 mt-auto">
                     <span className="text-lg font-semibold text-[#5C3D2E]">
                       Rs {Number(item.final_price || item.price).toLocaleString()}
@@ -205,7 +251,10 @@ export default function TopRatedSection() {
               exit={{ opacity: 0, x: -100 }}
               transition={{ duration: 0.3 }}
             >
-              <div className="cursor-pointer" onClick={() => navigate(`/products/${topRated[currentIndex].id}`)}>
+              <div 
+                className="cursor-pointer" 
+                onClick={() => navigate(`/products/${topRated[currentIndex].id}`)}
+              >
                 <div className="relative mb-4 overflow-hidden rounded-2xl bg-[#D4C4A8]/20 aspect-square">
                   <img
                     src={topRated[currentIndex].image}
@@ -213,6 +262,7 @@ export default function TopRatedSection() {
                     className="w-full h-full object-cover"
                   />
                   
+                  {/* Rating Badge */}
                   {topRated[currentIndex].average_rating && (
                     <div className="absolute top-3 left-3 flex items-center gap-1 bg-white/80 backdrop-blur-sm px-2 py-1 rounded-full z-10">
                       <Star size={12} fill="#fbbf24" className="text-amber-400" />
@@ -237,6 +287,30 @@ export default function TopRatedSection() {
                   <h3 className="text-[#5C3D2E] font-medium mb-1.5 line-clamp-2 min-h-[48px]">
                     {topRated[currentIndex].title}
                   </h3>
+                  
+                  {/* Color Selection - Mobile */}
+                  {topRated[currentIndex].colors && topRated[currentIndex].colors.length > 0 && (
+                    <div className="mb-3">
+                      <div className="flex items-center gap-1.5 flex-wrap">
+                        <div className="flex gap-1.5">
+                          {topRated[currentIndex].colors.map((color) => (
+                            <button
+                              key={color.id}
+                              onClick={(e) => handleColorSelect(topRated[currentIndex].id, color, e)}
+                              className={`w-4 h-4 rounded-full border-2 transition-all duration-200 ${
+                                selectedColors[topRated[currentIndex].id]?.id === color.id
+                                  ? 'border-[#8B6914] scale-110 ring-1 ring-[#8B6914]/50'
+                                  : 'border-white/50 hover:scale-105'
+                              }`}
+                              style={{ backgroundColor: color.hex_code }}
+                              title={color.name}
+                            />
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                  
                   <div className="flex items-baseline gap-2">
                     <span className="text-lg font-semibold text-[#5C3D2E]">
                       Rs {Number(topRated[currentIndex].final_price || topRated[currentIndex].price).toLocaleString()}
@@ -252,23 +326,31 @@ export default function TopRatedSection() {
             </motion.div>
           </div>
 
+          {/* Navigation Arrows */}
           {topRated.length > 1 && (
             <>
-              <button onClick={prevSlide} className="absolute left-0 top-1/2 -translate-y-1/2 bg-white/80 rounded-full p-2 shadow-md hover:bg-white transition z-20">
+              <button 
+                onClick={prevSlide} 
+                className="absolute left-0 top-1/2 -translate-y-1/2 bg-white/80 rounded-full p-2 shadow-md hover:bg-white transition z-20"
+              >
                 <ChevronLeft size={20} className="text-[#5C3D2E]" />
               </button>
-              <button onClick={nextSlide} className="absolute right-0 top-1/2 -translate-y-1/2 bg-white/80 rounded-full p-2 shadow-md hover:bg-white transition z-20">
+              <button 
+                onClick={nextSlide} 
+                className="absolute right-0 top-1/2 -translate-y-1/2 bg-white/80 rounded-full p-2 shadow-md hover:bg-white transition z-20"
+              >
                 <ChevronRight size={20} className="text-[#5C3D2E]" />
               </button>
             </>
           )}
 
+          {/* Dots Indicator */}
           <div className="flex justify-center gap-1.5 mt-6">
             {topRated.map((_, idx) => (
               <button
                 key={idx}
                 onClick={() => setCurrentIndex(idx)}
-                className={`h-1.5 rounded-full transition-opacity ${
+                className={`h-1.5 rounded-full transition-all ${
                   currentIndex === idx ? "w-6 bg-[#5C3D2E]" : "w-1.5 bg-[#D4C4A8]"
                 }`}
               />
@@ -276,6 +358,7 @@ export default function TopRatedSection() {
           </div>
         </div>
 
+        {/* View All Button */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -285,7 +368,7 @@ export default function TopRatedSection() {
         >
           <button
             onClick={() => navigate("/products")}
-            className="inline-flex items-center gap-2 px-8 py-3 rounded-full bg-[#5C3D2E] text-white text-sm font-medium hover:bg-[#4A3226] transition-opacity group"
+            className="inline-flex items-center gap-2 px-8 py-3 rounded-full bg-[#5C3D2E] text-white text-sm font-medium hover:bg-[#4A3226] transition group"
           >
             <span>View All Top Rated Products</span>
             <TrendingUp size={14} className="group-hover:translate-x-1 transition-transform" />

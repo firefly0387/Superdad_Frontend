@@ -3,8 +3,8 @@ import { Filter, Tag, Flame } from "lucide-react";
 
 type Props = {
   categories: Category[];
-  category: number | "";
-  setCategory: (v: number | "") => void;
+  categoryId: number | "";
+  setCategoryId: (v: number | "") => void;
   minPrice: number;
   setMinPrice: (v: number) => void;
   maxPrice: number;
@@ -16,14 +16,32 @@ type Props = {
 
 const ProductSidebar = ({
   categories,
-  category,
-  setCategory,
+  categoryId,
+  setCategoryId,
   maxPrice,
   setMaxPrice,
   hotDeals,
   setHotDeals,
   totalCount,
 }: Props) => {
+  // Helper to get category title from ID
+  const getCategoryTitle = (id: number | "") => {
+    if (id === "") return "";
+    const category = categories.find(c => c.id === id);
+    return category ? category.title : "";
+  };
+
+  // Helper to get category ID from title
+  const getCategoryIdFromTitle = (title: string) => {
+    const category = categories.find(c => c.title === title);
+    return category ? category.id : "";
+  };
+
+  const handleCategoryChange = (title: string) => {
+    const id = getCategoryIdFromTitle(title);
+    setCategoryId(id);
+  };
+
   return (
     <aside className="rounded-2xl border border-[#D4C4A8] bg-white/60 backdrop-blur-sm p-5 space-y-6 shadow-sm sticky top-35">
       <div className="border-b border-[#D4C4A8] pb-4">
@@ -41,13 +59,13 @@ const ProductSidebar = ({
           Category
         </label>
         <select
-          value={category}
-          onChange={(e) => setCategory(e.target.value ? Number(e.target.value) : "")}
+          value={getCategoryTitle(categoryId)}
+          onChange={(e) => handleCategoryChange(e.target.value)}
           className="w-full h-11 rounded-xl border border-[#D4C4A8] px-3 text-sm text-[#3E2723] bg-white/50 focus:border-[#C4A747] focus:ring-1 focus:ring-[#C4A747] outline-none"
         >
           <option value="">All Categories</option>
           {categories.map((c) => (
-            <option key={c.id} value={c.id}>
+            <option key={c.id} value={c.title}>
               {c.title}
             </option>
           ))}

@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 type InstagramPost = {
   id: string;
   media_url: string;
+  thumbnail_url?: string;
   permalink: string;
   media_type: string;
 };
@@ -12,10 +13,14 @@ export default function InstagramSection() {
   const [posts, setPosts] = useState<InstagramPost[]>([]);
 
   useEffect(() => {
+    console.log(
+      "Instagram Token:",
+      import.meta.env.VITE_INSTAGRAM_ACCESS_TOKEN,
+    );
     const fetchInstagramPosts = async () => {
       try {
         const response = await fetch(
-          `https://graph.instagram.com/me/media?fields=id,media_url,permalink,media_type&access_token=${import.meta.env.VITE_INSTAGRAM_ACCESS_TOKEN}`
+          `https://graph.instagram.com/me/media?fields=id,media_url,thumbnail_url,permalink,media_type&access_token=${import.meta.env.VITE_INSTAGRAM_ACCESS_TOKEN}`,
         );
 
         const data = await response.json();
@@ -34,7 +39,7 @@ export default function InstagramSection() {
   if (!posts.length) return null;
 
   return (
-    <section className="w-full bg-[#f7f3f0] py-20 lg:py-24 overflow-hidden">
+    <section className="w-full bg-[#f5e7db] py-20 lg:py-24 overflow-hidden">
       <div className="max-w-7xl mx-auto px-6 lg:px-10">
         <div className="text-center mb-10">
           <p className="text-xs md:text-sm tracking-[0.28em] uppercase text-[#b28f7b] font-medium mb-3">
@@ -56,7 +61,7 @@ export default function InstagramSection() {
             >
               <div className="aspect-4/5 overflow-hidden">
                 <img
-                  src={post.media_url}
+                  src={post.thumbnail_url || post.media_url}
                   alt="Instagram post"
                   className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
                 />

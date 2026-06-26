@@ -1,7 +1,9 @@
+// MainLayout.tsx
 import { useEffect, useRef, useState } from "react";
 import { Outlet, useLocation } from "react-router-dom";
 import Header from "@/components/Navbar/Navbar";
 import Footer from "@/components/footer/Footer";
+import ChatPopup from "@/components/home/ChatPopup";
 
 const MainLayout = () => {
   const [headerHeight, setHeaderHeight] = useState(0);
@@ -32,11 +34,20 @@ const MainLayout = () => {
         <div style={{ height: `${headerHeight}px` }} />
       )}
       
-      {/* Remove overflow-hidden */}
       <main>
         <Outlet />
       </main>
+      
       <Footer />
+      
+      {/* Chat Popup - Only appears when clicked */}
+      <ChatPopup
+        whatsappNumber="9771234567890" // Replace with your WhatsApp number
+        whatsappMessage="Hi! I need help with your products."
+        messengerPageId="your_page_username" // Replace with your Facebook page username
+        position="bottom-right"
+        theme="light"
+      />
     </div>
   );
 };

@@ -162,7 +162,7 @@ const Footer = () => {
               },
               {
                 Icon: FaWhatsapp,
-                link: "https://wa.me/your-number",
+                link: "https://wa.me/9861819558",
               },
             ].map(({ Icon, link }, i) => (
               <motion.a

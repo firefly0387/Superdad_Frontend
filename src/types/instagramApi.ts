@@ -55,7 +55,6 @@ export const getInstagramBusinessFeed = async (limit: number = 12): Promise<Inst
 
         const url = `https://graph.facebook.com/v18.0/${BUSINESS_ACCOUNT_ID || 'me'}/media?fields=${fields}&access_token=${INSTAGRAM_ACCESS_TOKEN}&limit=${limit}`;
         
-        console.log('Fetching Instagram feed...');
         const response = await fetch(url);
         
         if (!response.ok) {
@@ -65,7 +64,6 @@ export const getInstagramBusinessFeed = async (limit: number = 12): Promise<Inst
         }
         
         const data: InstagramApiResponse = await response.json();
-        console.log(`Successfully fetched ${data.data?.length || 0} Instagram posts`);
         return data.data || [];
     } catch (error) {
         console.error('Error fetching Instagram feed:', error);

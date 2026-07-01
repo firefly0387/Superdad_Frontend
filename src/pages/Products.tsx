@@ -61,8 +61,6 @@ const Products = () => {
   useEffect(() => {
     if (!allCategoriesLoaded) return;
 
-    console.log("Converting URL to IDs - Category:", categoryTitleFromUrl, "Subcategory:", subcategoryTitle);
-
     // Convert category title to ID
     if (categoryTitleFromUrl) {
       const category = categories.find(c => c.title === categoryTitleFromUrl);
@@ -138,8 +136,6 @@ const Products = () => {
     if (minPrice !== "") fetchParams.price__gte = minPrice;
     if (maxPrice !== "" && maxPrice !== 50000) fetchParams.price__lte = maxPrice;
     if (hotDeals) fetchParams.hot_deal = true;
-
-    console.log("Fetching products with params:", fetchParams);
 
     getProducts(fetchParams)
       .then((data) => {

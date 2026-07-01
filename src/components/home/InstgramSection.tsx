@@ -13,10 +13,6 @@ export default function InstagramSection() {
   const [posts, setPosts] = useState<InstagramPost[]>([]);
 
   useEffect(() => {
-    console.log(
-      "Instagram Token:",
-      import.meta.env.VITE_INSTAGRAM_ACCESS_TOKEN,
-    );
     const fetchInstagramPosts = async () => {
       try {
         const response = await fetch(

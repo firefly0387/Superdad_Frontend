@@ -16,9 +16,7 @@ const HeroSlider = () => {
   useEffect(() => {
     setLoading(true);
     getHeroCarousel()
-      .then((res) => {
-        console.log("API DATA:", res);
-        
+      .then((res) => {       
         // Handle different response structures
         let slidesData: (HeroResponse & any[]) | SetStateAction<HeroItem[]> = [];
         if (Array.isArray(res)) {

@@ -12,26 +12,29 @@ const MiniCartDropdown = ({ onClose }: { onClose: () => void }) => {
   useEffect(() => {
     // Handle click outside
     const handleClickOutside = (event: MouseEvent) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(event.target as Node)
+      ) {
         onClose();
       }
     };
 
     // Handle escape key
     const handleEscape = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') {
+      if (event.key === "Escape") {
         onClose();
       }
     };
 
     // Prevent body scroll
-    document.body.style.overflow = 'hidden';
-    
+    document.body.style.overflow = "hidden";
+
     document.addEventListener("mousedown", handleClickOutside);
     document.addEventListener("keydown", handleEscape);
-    
+
     return () => {
-      document.body.style.overflow = 'unset';
+      document.body.style.overflow = "unset";
       document.removeEventListener("mousedown", handleClickOutside);
       document.removeEventListener("keydown", handleEscape);
     };
@@ -53,30 +56,30 @@ const MiniCartDropdown = ({ onClose }: { onClose: () => void }) => {
   return (
     <>
       {/* Backdrop */}
-      <div 
+      <div
         className="fixed inset-0 bg-black/20 backdrop-blur-sm"
         style={{ zIndex: 9998 }}
         onClick={onClose}
       />
-      
+
       {/* Dropdown */}
-      <div 
+      <div
         ref={dropdownRef}
-        className="fixed right-4 top-[70px] w-96 rounded-2xl border border-[#E8D5B7] bg-white shadow-2xl overflow-hidden"
+        className="fixed right-4 top-17.5 w-96 rounded-2xl border border-[#E8D5B7] bg-white shadow-2xl overflow-hidden"
         style={{ zIndex: 9999 }}
       >
         {/* HEADER */}
-        <div className="flex items-center justify-between p-4 bg-gradient-to-r from-[#5C3D2E] to-[#4A3226]">
+        <div className="flex items-center justify-between p-4 bg-linear-to-r from-[#5C3D2E] to-[#4A3226]">
           <div className="flex items-center gap-2">
             <ShoppingBag className="w-5 h-5 text-white" />
             <h3 className="font-semibold text-white">Your Cart</h3>
           </div>
-          
+
           <div className="flex items-center gap-3">
             <span className="text-xs px-2 py-1 rounded-full bg-white/20 text-white">
               {state.items.length} item{state.items.length !== 1 ? "s" : ""}
             </span>
-            
+
             <button
               onClick={onClose}
               className="text-white/80 hover:text-white transition-colors"
@@ -119,27 +122,36 @@ const MiniCartDropdown = ({ onClose }: { onClose: () => void }) => {
                     alt={item.product?.title || item.product?.name}
                     className="w-16 h-16 object-cover rounded-xl"
                   />
-                  
+
                   <div className="flex-1 min-w-0">
                     <div className="flex items-start justify-between gap-2">
                       <div className="flex-1">
                         <p className="text-sm font-medium text-gray-900 line-clamp-2">
                           {item.product?.title || item.product?.name}
                         </p>
-                        
+
                         {item.selectedColor && (
                           <div className="flex items-center gap-1.5 mt-1">
-                            <div 
-                              className="w-3 h-3 rounded-full ring-1 ring-gray-200" 
-                              style={{ backgroundColor: item.selectedColor.hex_code }}
+                            <div
+                              className="w-3 h-3 rounded-full ring-1 ring-gray-200"
+                              style={{
+                                backgroundColor: item.selectedColor.hex_code,
+                              }}
                             />
                             <span className="text-xs text-gray-500">
                               {item.selectedColor.name}
                             </span>
                           </div>
                         )}
+                        {item.selectedSize && (
+                          <div className="mt-1">
+                            <span className="inline-flex items-center rounded-md border border-[#D4C4A8] bg-[#F8F4EE] px-2 py-0.5 text-xs font-medium text-[#5C3D2E]">
+                              Size: {item.selectedSize.name}
+                            </span>
+                          </div>
+                        )}
                       </div>
-                      
+
                       <button
                         onClick={() => handleRemoveItem(item)}
                         className="opacity-0 group-hover:opacity-100 transition-opacity p-1.5 rounded-full hover:bg-red-50 text-gray-400 hover:text-red-500"
@@ -155,11 +167,24 @@ const MiniCartDropdown = ({ onClose }: { onClose: () => void }) => {
                         </span>
                         <span className="text-xs text-gray-300">•</span>
                         <span className="text-xs text-gray-500">
-                          Rs {Number(item.product?.final_price || item.product?.price || 0).toLocaleString()} each
+                          Rs{" "}
+                          {Number(
+                            item.product?.final_price ||
+                              item.product?.price ||
+                              0,
+                          ).toLocaleString()}{" "}
+                          each
                         </span>
                       </div>
                       <span className="text-sm font-semibold text-gray-900">
-                        Rs {(Number(item.product?.final_price || item.product?.price || 0) * item.quantity).toLocaleString()}
+                        Rs{" "}
+                        {(
+                          Number(
+                            item.product?.final_price ||
+                              item.product?.price ||
+                              0,
+                          ) * item.quantity
+                        ).toLocaleString()}
                       </span>
                     </div>
                   </div>
@@ -170,12 +195,14 @@ const MiniCartDropdown = ({ onClose }: { onClose: () => void }) => {
             {/* FOOTER */}
             <div className="p-4 border-t border-gray-100 bg-gray-50">
               <div className="flex justify-between items-center mb-3">
-                <span className="text-sm font-medium text-gray-600">Subtotal</span>
+                <span className="text-sm font-medium text-gray-600">
+                  Subtotal
+                </span>
                 <span className="text-lg font-bold text-gray-900">
                   Rs {total.toLocaleString()}
                 </span>
               </div>
-              
+
               <p className="text-xs text-gray-500 mb-4">
                 *Shipping charges will be calculated at checkout
               </p>
@@ -196,7 +223,7 @@ const MiniCartDropdown = ({ onClose }: { onClose: () => void }) => {
                     navigate("/checkout");
                     onClose();
                   }}
-                  className="px-4 py-2.5 rounded-xl bg-gradient-to-r from-[#5C3D2E] to-[#4A3226] text-white text-sm font-medium hover:from-[#4A3226] hover:to-[#3D261B] transition-all shadow-md"
+                  className="px-4 py-2.5 rounded-xl bg-linear-to-r from-[#5C3D2E] to-[#4A3226] text-white text-sm font-medium hover:from-[#4A3226] hover:to-[#3D261B] transition-all shadow-md"
                 >
                   Checkout
                 </button>

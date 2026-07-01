@@ -1,13 +1,23 @@
 import { useParams, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
-import type { Product, Color } from "@/types/product";
+import type { Product, Color, Size } from "@/types/product";
 import { getProductById } from "@/utils/api";
 import { useCart } from "@/context/CartContext";
 import ProductDetailsSkeleton from "@/components/skletons/ProductDetailsSkelton";
 import { toast } from "sonner";
-import { 
-  Minus, Plus, ShoppingCart, Zap, ChevronLeft, 
-  ChevronRight, Check, Truck, Shield, RefreshCw, Star, Palette 
+import {
+  Minus,
+  Plus,
+  ShoppingCart,
+  Zap,
+  ChevronLeft,
+  ChevronRight,
+  Check,
+  Truck,
+  Shield,
+  RefreshCw,
+  Star,
+  Palette,
 } from "lucide-react";
 import ProductReviews from "@/components/products/ProductReviews";
 
@@ -27,6 +37,7 @@ const ProductDetails = () => {
   const [zoomPosition, setZoomPosition] = useState({ x: 0, y: 0 });
   const [showScrollTop, setShowScrollTop] = useState(false);
   const [selectedColor, setSelectedColor] = useState<Color | null>(null);
+  const [selectedSize, setSelectedSize] = useState<Size | null>(null);
 
   useEffect(() => {
     if (!id) return;
@@ -42,9 +53,16 @@ const ProductDetails = () => {
         ].filter(Boolean);
         setAllImages(images);
         setMainImage(images[0] || "");
-        
+
         if (data.colors && data.colors.length > 0) {
           setSelectedColor(data.colors[0]);
+        }
+        if (data.colors && data.colors.length > 0) {
+          setSelectedColor(data.colors[0]);
+        }
+
+        if (data.sizes && data.sizes.length > 0) {
+          setSelectedSize(data.sizes[0]);
         }
       })
       .finally(() => setLoading(false));
@@ -54,24 +72,29 @@ const ProductDetails = () => {
     const handleScroll = () => {
       setShowScrollTop(window.scrollY > 500);
     };
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
   if (loading || !product) return <ProductDetailsSkeleton />;
 
   const handleAddToCart = () => {
-    const item = { 
-      ...product, 
+    const item = {
+      ...product,
       quantity,
-      selectedColor: selectedColor
+      selectedColor,
+      selectedSize,
     };
     addToCart(item);
     setAddedToCart(true);
     toast.success(
       <div className="flex items-center gap-2">
         <ShoppingCart size={16} />
-        <span>Added to cart! {selectedColor && `(${selectedColor.name})`}</span>
+        <span>
+          Added to cart!
+          {selectedColor && ` ${selectedColor.name}`}
+          {selectedSize && ` • ${selectedSize.name}`}
+        </span>
       </div>,
       {
         duration: 2000,
@@ -81,13 +104,15 @@ const ProductDetails = () => {
           color: "#f5e7db",
           border: "1px solid #8B6914",
         },
-      }
+      },
     );
     setTimeout(() => setAddedToCart(false), 2000);
   };
 
   const handleQuantityChange = (delta: number) => {
-    setQuantity(Math.max(1, Math.min(product.quantity || 99, quantity + delta)));
+    setQuantity(
+      Math.max(1, Math.min(product.quantity || 99, quantity + delta)),
+    );
   };
 
   const nextImage = () => {
@@ -96,20 +121,25 @@ const ProductDetails = () => {
   };
 
   const prevImage = () => {
-    setSelectedImageIndex((prev) => (prev - 1 + allImages.length) % allImages.length);
-    setMainImage(allImages[(selectedImageIndex - 1 + allImages.length) % allImages.length]);
+    setSelectedImageIndex(
+      (prev) => (prev - 1 + allImages.length) % allImages.length,
+    );
+    setMainImage(
+      allImages[(selectedImageIndex - 1 + allImages.length) % allImages.length],
+    );
   };
 
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
     if (!isZoomed) return;
-    const { left, top, width, height } = e.currentTarget.getBoundingClientRect();
+    const { left, top, width, height } =
+      e.currentTarget.getBoundingClientRect();
     const x = ((e.clientX - left) / width) * 100;
     const y = ((e.clientY - top) / height) * 100;
     setZoomPosition({ x, y });
   };
 
   const scrollToTop = () => {
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   return (
@@ -117,11 +147,10 @@ const ProductDetails = () => {
       {/* MAIN LAYOUT */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 lg:py-12">
         <div className="grid lg:grid-cols-2 gap-8 lg:gap-16">
-          
           {/* LEFT COLUMN - IMAGES */}
           <div className="space-y-6 animate-fade-in-up">
             {/* Main Image with Enhanced Zoom */}
-            <div 
+            <div
               className="relative group rounded-2xl overflow-hidden bg-[#D4C4A8]/30 shadow-lg cursor-zoom-in"
               onMouseEnter={() => setIsZoomed(true)}
               onMouseLeave={() => setIsZoomed(false)}
@@ -133,12 +162,12 @@ const ProductDetails = () => {
                   alt={product.title}
                   className="w-full h-125 object-cover transition-all duration-500"
                   style={{
-                    transform: isZoomed ? 'scale(1.5)' : 'scale(1)',
-                    transformOrigin: `${zoomPosition.x}% ${zoomPosition.y}%`
+                    transform: isZoomed ? "scale(1.5)" : "scale(1)",
+                    transformOrigin: `${zoomPosition.x}% ${zoomPosition.y}%`,
                   }}
                 />
               </div>
-              
+
               {/* Image Navigation Buttons */}
               {allImages.length > 1 && (
                 <>
@@ -180,7 +209,11 @@ const ProductDetails = () => {
                       : "opacity-70 hover:opacity-100 hover:scale-105"
                   }`}
                 >
-                  <img src={img} alt={`Product view ${idx + 1}`} className="w-full h-full object-cover" />
+                  <img
+                    src={img}
+                    alt={`Product view ${idx + 1}`}
+                    className="w-full h-full object-cover"
+                  />
                 </button>
               ))}
             </div>
@@ -216,7 +249,9 @@ const ProductDetails = () => {
                     }`}
                   />
                 ))}
-                <span className="font-semibold text-[#3E2723] ml-2">{product.average_rating || 0}</span>
+                <span className="font-semibold text-[#3E2723] ml-2">
+                  {product.average_rating || 0}
+                </span>
                 <span className="text-[#795548]">/ 5</span>
               </div>
             </div>
@@ -246,7 +281,9 @@ const ProductDetails = () => {
               <div className="space-y-3 animate-slide-in-left animation-delay-550">
                 <div className="flex items-center gap-2">
                   <Palette className="w-4 h-4 text-[#795548]" />
-                  <label className="text-sm font-medium text-[#3E2723]">Color</label>
+                  <label className="text-sm font-medium text-[#3E2723]">
+                    Color
+                  </label>
                   {selectedColor && (
                     <span className="text-xs text-[#795548] ml-2">
                       ({selectedColor.name})
@@ -279,17 +316,55 @@ const ProductDetails = () => {
                 </div>
               </div>
             )}
+            {/* Size Selection */}
+            {product.sizes && product.sizes.length > 0 && (
+              <div className="space-y-3 animate-slide-in-left animation-delay-600">
+                <div className="flex items-center gap-2">
+                  <label className="text-sm font-medium text-[#3E2723]">
+                    Size
+                  </label>
+
+                  {selectedSize && (
+                    <span className="text-xs text-[#795548]">
+                      ({selectedSize.name})
+                    </span>
+                  )}
+                </div>
+
+                <div className="flex flex-wrap gap-3">
+                  {product.sizes.map((size) => (
+                    <button
+                      key={size.id}
+                      onClick={() => setSelectedSize(size)}
+                      className={`px-4 py-2 rounded-lg border font-medium transition-all duration-300 ${
+                        selectedSize?.id === size.id
+                          ? "bg-[#5C3D2E] text-white border-[#5C3D2E] scale-105"
+                          : "bg-white border-[#D4C4A8] text-[#3E2723] hover:border-[#8B6914] hover:bg-[#f5e7db]"
+                      }`}
+                    >
+                      {size.name}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
 
             {/* Stock Status */}
             <div className="flex items-center gap-3 animate-slide-in-left animation-delay-600">
-              <div className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-sm font-medium ${
-                product.quantity > 0 
-                  ? "bg-green-100 text-green-700" 
-                  : "bg-red-100 text-red-700"
-              }`}>
-                <div className={`w-1.5 h-1.5 rounded-full ${
-                  product.quantity > 0 ? "bg-green-600 animate-pulse" : "bg-red-600"
-                }`} />
+              <div
+                className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-sm font-medium ${
+                  product.quantity > 0
+                    ? "bg-green-100 text-green-700"
+                    : "bg-red-100 text-red-700"
+                }`}
+              >
+                <div
+                  className={`w-1.5 h-1.5 rounded-full ${
+                    product.quantity > 0
+                      ? "bg-green-600 animate-pulse"
+                      : "bg-red-600"
+                  }`}
+                />
                 {product.quantity > 0 ? "In Stock" : "Out of Stock"}
               </div>
               {product.quantity > 0 && product.quantity < 20 && (
@@ -301,7 +376,9 @@ const ProductDetails = () => {
 
             {/* Quantity Selector */}
             <div className="space-y-3 pt-4 animate-slide-in-left animation-delay-700">
-              <label className="text-sm font-medium text-[#3E2723]">Quantity</label>
+              <label className="text-sm font-medium text-[#3E2723]">
+                Quantity
+              </label>
               <div className="flex items-center gap-4">
                 <button
                   onClick={() => handleQuantityChange(-1)}
@@ -341,13 +418,14 @@ const ProductDetails = () => {
                   </>
                 )}
               </button>
-              
+
               <button
                 onClick={() => {
-                  addToCart({ 
-                    ...product, 
+                  addToCart({
+                    ...product,
                     quantity,
-                    selectedColor 
+                    selectedColor,
+                    selectedSize,
                   });
                   navigate("/checkout");
                 }}
@@ -395,7 +473,7 @@ const ProductDetails = () => {
               </div>
             </div>
           )}
-          
+
           {/* Highlights Section */}
           {product.sub_description && (
             <div className="bg-white/60 backdrop-blur-sm rounded-2xl p-8 lg:p-10 shadow-sm border border-[#E8D5B7] hover:shadow-md transition-all duration-300 animate-fade-in-up animation-delay-200">
@@ -432,7 +510,7 @@ const ProductDetails = () => {
                     style={{ animationDelay: `${idx * 100}ms` }}
                   >
                     <summary className="font-semibold text-[#3E2723] list-none flex items-center justify-between p-6 cursor-pointer">
-                      <span 
+                      <span
                         className="pr-4"
                         dangerouslySetInnerHTML={{ __html: faq.question }}
                       />
@@ -480,10 +558,10 @@ const ProductDetails = () => {
         </button>
         <button
           onClick={() => {
-            addToCart({ 
-              ...product, 
+            addToCart({
+              ...product,
               quantity,
-              selectedColor 
+              selectedColor,
             });
             navigate("/checkout");
           }}

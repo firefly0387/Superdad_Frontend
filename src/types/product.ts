@@ -50,6 +50,7 @@ export interface Product {
   categories: ProductCategory[];
   sub_categories: ProductSubCategory[];
   colors: Color[];
+  sizes: Size[];
 
   title: string;
   description: string;
@@ -59,13 +60,13 @@ export interface Product {
   image: string;
   add_image?: string | null;
 
-  // ✅ FIXED (was string[])
   additional_images: ProductImage[];
 
   faqs: ProductFAQ[];
   reviews: ProductReview[];
 
   quantity: number;
+
 
   price: string;
   discount_per: string;     // ✅ MISSING in your original
@@ -99,4 +100,9 @@ export interface Color {
   id: number;
   name: string;
   hex_code: string;
+}
+
+export interface Size {
+  id: number;
+  name: string;
 }

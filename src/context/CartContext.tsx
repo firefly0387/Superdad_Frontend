@@ -14,11 +14,17 @@ interface Color {
   hex_code: string;
 }
 
+interface Size {
+  id: number;
+  name: string;
+}
+
 interface CartItem {
   id: number;
   product: any;
   quantity: number;
   selectedColor?: Color | null;
+  selectedSize?: Size | null;
 }
 
 interface CartState {
@@ -43,7 +49,7 @@ const cartReducer = (state: CartState, action: any): CartState => {
       return {
         ...state,
         items: state.items.filter(
-          (item: CartItem) => item.id !== action.payload
+          (item: CartItem) => item.id !== action.payload,
         ),
       };
 
@@ -53,7 +59,7 @@ const cartReducer = (state: CartState, action: any): CartState => {
         items: state.items.map((item: CartItem) =>
           item.id === action.payload.itemId
             ? { ...item, selectedColor: action.payload.color }
-            : item
+            : item,
         ),
       };
 
@@ -70,16 +76,18 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
     const fetchCart = async () => {
       try {
         const res = await getCartApi();
-        
+
         // Transform API response to include color if available
         const itemsWithColors = (res.items || []).map((item: any) => {
-          const savedColor = localStorage.getItem(`product_${item.product?.id}_color`);
+          const savedColor = localStorage.getItem(
+            `product_${item.product?.id}_color`,
+          );
           return {
             ...item,
             selectedColor: savedColor ? JSON.parse(savedColor) : null,
           };
         });
-        
+
         dispatch({
           type: "SET_CART",
           payload: itemsWithColors,
@@ -104,13 +112,19 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
       if (product.selectedColor) {
         localStorage.setItem(
           `product_${product.id}_color`,
-          JSON.stringify(product.selectedColor)
+          JSON.stringify(product.selectedColor),
         );
+        if (product.selectedSize) {
+          localStorage.setItem(
+            `product_${product.id}_size`,
+            JSON.stringify(product.selectedSize),
+          );
+        }
       }
 
       // Call API with product ID and quantity
       const response = await addToCartApi(product.id, product.quantity || 1);
-      
+
       // Store cart_id if returned from API
       if (response.cart_id) {
         localStorage.setItem("cart_id", response.cart_id);
@@ -118,13 +132,21 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
 
       // Fetch updated cart
       const cart = await getCartApi();
-      
+
       // Merge colors back into cart items
       const itemsWithColors = (cart.items || []).map((item: any) => {
-        const savedColor = localStorage.getItem(`product_${item.product?.id}_color`);
+        const savedColor = localStorage.getItem(
+          `product_${item.product?.id}_color`,
+        );
+
+        const savedSize = localStorage.getItem(
+          `product_${item.product?.id}_size`,
+        );
+
         return {
           ...item,
           selectedColor: savedColor ? JSON.parse(savedColor) : null,
+          selectedSize: savedSize ? JSON.parse(savedSize) : null,
         };
       });
 
@@ -169,10 +191,12 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
       await updateCartItemApi(id, cartId, qty);
 
       const cart = await getCartApi();
-      
+
       // Preserve colors when updating cart
       const itemsWithColors = (cart.items || []).map((item: any) => {
-        const savedColor = localStorage.getItem(`product_${item.product?.id}_color`);
+        const savedColor = localStorage.getItem(
+          `product_${item.product?.id}_color`,
+        );
         return {
           ...item,
           selectedColor: savedColor ? JSON.parse(savedColor) : null,
@@ -189,10 +213,17 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   // UPDATE ITEM COLOR
-  const updateItemColor = async (itemId: number, productId: number, color: Color | null) => {
+  const updateItemColor = async (
+    itemId: number,
+    productId: number,
+    color: Color | null,
+  ) => {
     try {
       if (color) {
-        localStorage.setItem(`product_${productId}_color`, JSON.stringify(color));
+        localStorage.setItem(
+          `product_${productId}_color`,
+          JSON.stringify(color),
+        );
       } else {
         localStorage.removeItem(`product_${productId}_color`);
       }
@@ -210,8 +241,8 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
   const clearCart = () => {
     // Clear all color data from localStorage
     const keys = Object.keys(localStorage);
-    keys.forEach(key => {
-      if (key.startsWith('product_') && key.endsWith('_color')) {
+    keys.forEach((key) => {
+      if (key.startsWith("product_") && key.endsWith("_color")) {
         localStorage.removeItem(key);
       }
     });
@@ -220,7 +251,7 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
       type: "SET_CART",
       payload: [],
     });
-    
+
     // Don't remove cart_id here - keep it for future additions
   };
 
@@ -228,8 +259,8 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
   const resetCart = () => {
     // Clear all color data from localStorage
     const keys = Object.keys(localStorage);
-    keys.forEach(key => {
-      if (key.startsWith('product_') && key.endsWith('_color')) {
+    keys.forEach((key) => {
+      if (key.startsWith("product_") && key.endsWith("_color")) {
         localStorage.removeItem(key);
       }
     });
@@ -245,8 +276,10 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
 
   const total = state.items.reduce(
     (acc: number, item: CartItem) =>
-      acc + Number(item.product?.final_price || item.product?.price || 0) * item.quantity,
-    0
+      acc +
+      Number(item.product?.final_price || item.product?.price || 0) *
+        item.quantity,
+    0,
   );
 
   return (

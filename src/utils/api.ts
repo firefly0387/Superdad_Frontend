@@ -6,7 +6,7 @@ import type { HeroResponse } from "@/types/hero";
 import type { ContactFormData, ContactResponse } from "@/types/contact";
 import type { OrderData, OrderResponse } from "@/types/order";
 
-const API_BASE_URL = import.meta.env.VITE_DOMAIN || "http://127.0.0.1:8000/api";
+const API_BASE_URL = import.meta.env.VITE_API_URL || "http://127.0.0.1:8000/api";
 
 const cleanApiBaseUrl = API_BASE_URL.replace(/\/$/, "");
 

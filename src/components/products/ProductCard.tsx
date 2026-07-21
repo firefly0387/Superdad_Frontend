@@ -58,7 +58,7 @@ const ProductCard = ({ product }: { product: Product }) => {
         <img
           src={product.image}
           alt={product.title}
-          className={`absolute inset-0 h-full w-full object-contain transition-all duration-500 ${
+          className={`absolute inset-0 h-full w-full object-cover transition-all duration-500 ${
             hasSecondaryImage
               ? "opacity-100 scale-100 group-hover:opacity-0 group-hover:scale-110"
               : "group-hover:scale-105"
@@ -70,7 +70,7 @@ const ProductCard = ({ product }: { product: Product }) => {
           <img
             src={secondaryImage}
             alt={`${product.title} alternate`}
-            className="absolute inset-0 h-full w-full object-contain opacity-0 scale-110 transition-all duration-500 group-hover:opacity-100 group-hover:scale-100"
+            className="absolute inset-0 h-full w-full object-cover opacity-0 scale-110 transition-all duration-500 group-hover:opacity-100 group-hover:scale-100"
           />
         )}
 

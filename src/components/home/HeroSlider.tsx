@@ -2,6 +2,7 @@ import { useState, useEffect, useRef, type SetStateAction } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { getHeroCarousel } from "@/utils/api";
 import type { HeroItem, HeroResponse } from "@/types/hero";
+import { useNavigate } from "react-router-dom";
 
 const HeroSlider = () => {
   const [slides, setSlides] = useState<HeroItem[]>([]);
@@ -11,14 +12,16 @@ const HeroSlider = () => {
 
   const touchStartX = useRef(0);
   const touchEndX = useRef(0);
+  const navigate = useNavigate();
 
   // Fetch data
   useEffect(() => {
     setLoading(true);
     getHeroCarousel()
-      .then((res) => {       
+      .then((res) => {
         // Handle different response structures
-        let slidesData: (HeroResponse & any[]) | SetStateAction<HeroItem[]> = [];
+        let slidesData: (HeroResponse & any[]) | SetStateAction<HeroItem[]> =
+          [];
         if (Array.isArray(res)) {
           slidesData = res;
         } else if (res?.results && Array.isArray(res.results)) {
@@ -28,7 +31,7 @@ const HeroSlider = () => {
         } else {
           slidesData = [];
         }
-        
+
         setSlides(slidesData);
       })
       .catch((err) => {
@@ -78,8 +81,7 @@ const HeroSlider = () => {
   // Loading state
   if (loading) {
     return (
-      <div className="relative w-full min-h-screen bg-[#f5e7db] flex items-center justify-center">
-      </div>
+      <div className="relative w-full min-h-screen bg-[#f5e7db] flex items-center justify-center"></div>
     );
   }
 
@@ -123,7 +125,7 @@ const HeroSlider = () => {
             />
 
             {/* Gradient overlay (premium look) */}
-            <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent" />
+            <div className="absolute inset-0 bg-linear-to-t from-black/70 via-black/30 to-transparent" />
 
             {/* Content */}
             <div className="absolute inset-0 flex flex-col justify-center items-center text-center px-6 text-white">
@@ -134,7 +136,10 @@ const HeroSlider = () => {
                 dangerouslySetInnerHTML={{ __html: slide.description }}
               />
 
-              <button className="mt-6 px-6 py-3 bg-white text-black rounded-full hover:scale-105 transition">
+              <button
+                onClick={() => navigate("/products")}
+                className="mt-6 px-6 py-3 bg-white text-black rounded-full hover:scale-105 transition"
+              >
                 Explore
               </button>
             </div>

@@ -1,6 +1,5 @@
 // HomePageSkeletonCompact.tsx (with progress bar)
-import { motion } from "framer-motion";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 
 const shimmerStyles = `
   @keyframes shimmer {
@@ -39,22 +38,14 @@ interface HomePageSkeletonProps {
 }
 
 const HomePageSkeleton = ({ onLoadingComplete }: HomePageSkeletonProps) => {
-  const [progress, setProgress] = useState(0);
 
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setProgress((prev) => {
-        if (prev >= 100) {
-          clearInterval(interval);
-          onLoadingComplete?.();
-          return 100;
-        }
-        return prev + 2;
-      });
-    }, 40);
+useEffect(() => {
+  const timer = setTimeout(() => {
+    onLoadingComplete?.();
+  }, 1500); // same duration as Home.tsx
 
-    return () => clearInterval(interval);
-  }, [onLoadingComplete]);
+  return () => clearTimeout(timer);
+}, [onLoadingComplete]);
 
   return (
     <div className="relative overflow-hidden bg-[#f5e7db] min-h-screen">
@@ -64,7 +55,7 @@ const HomePageSkeleton = ({ onLoadingComplete }: HomePageSkeletonProps) => {
       <div className="fixed inset-0 -z-10 overflow-hidden">
         <div className="absolute top-10 left-10 w-72 h-72 bg-[#D4C4A8]/30 rounded-full blur-3xl" />
         <div className="absolute bottom-10 right-10 w-96 h-96 bg-[#C4A747]/20 rounded-full blur-3xl" />
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-[#8B6914]/10 rounded-full blur-3xl" />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-125 h-125 bg-[#8B6914]/10 rounded-full blur-3xl" />
       </div>
 
       {/* Hero skeleton */}
@@ -121,21 +112,6 @@ const HomePageSkeleton = ({ onLoadingComplete }: HomePageSkeletonProps) => {
           </div>
         </div>
       </section>
-
-      {/* Progress bar */}
-      <div className="fixed bottom-8 left-1/2 -translate-x-1/2 z-20">
-        <div className="bg-white/80 backdrop-blur-xl border border-[#E8D5B7] rounded-full px-6 py-3 shadow-xl flex items-center gap-4 min-w-[200px]">
-          <div className="relative flex-1 h-1.5 bg-[#E8D5B7]/50 rounded-full overflow-hidden">
-            <motion.div
-              className="absolute inset-0 bg-gradient-to-r from-[#8B6914] to-[#C4A747] rounded-full"
-              initial={{ width: 0 }}
-              animate={{ width: `${progress}%` }}
-              transition={{ duration: 0.3 }}
-            />
-          </div>
-          <span className="text-sm font-medium text-[#5C3D2E]">{progress}%</span>
-        </div>
-      </div>
     </div>
   );
 };

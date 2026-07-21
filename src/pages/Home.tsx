@@ -51,15 +51,13 @@ const Home = () => {
   return (
     <div className="bg-[#faf9f7]">
       {/* Hero Slider - Always visible first */}
-      <Suspense
-        fallback={
-          <div className="h-100 md:h-125 lg:h-150 bg-[#f5e7db] animate-pulse flex items-center justify-center">
-            <div className="text-[#8B6914]">Loading Hero...</div>
-          </div>
-        }
-      >
-        <HeroSlider />
-      </Suspense>
+<Suspense
+  fallback={
+    <div className="h-100 md:h-125 lg:h-150 bg-[#f5e7db] animate-pulse rounded-b-3xl" />
+  }
+>
+  <HeroSlider />
+</Suspense>
 
       {/* Other components load progressively with fade-in effect */}
       <div

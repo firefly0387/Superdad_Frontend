@@ -79,10 +79,6 @@ const HeroSlider = () => {
   if (loading) {
     return (
       <div className="relative w-full min-h-screen bg-[#f5e7db] flex items-center justify-center">
-        <div className="text-center">
-          <div className="w-16 h-16 border-4 border-[#8B6914] border-t-transparent rounded-full animate-spin mx-auto mb-4" />
-          <p className="text-[#795548]">Loading amazing content...</p>
-        </div>
       </div>
     );
   }

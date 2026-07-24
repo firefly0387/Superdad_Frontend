@@ -288,7 +288,7 @@ const Products = () => {
   return (
     <>
       <SEO
-        title="Products"
+        title="Store"
         description="Browse premium baby clothing, toys, feeding essentials, diapers, and accessories."
       />
       <div className="min-h-screen bg-[#f5e7db] pt-27.5 md:pt-30">

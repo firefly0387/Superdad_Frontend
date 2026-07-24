@@ -1,5 +1,6 @@
 import HomePageSkeleton from "@/components/skletons/HomePageSkeleton";
 import { lazy, Suspense, useEffect, useState } from "react";
+import SEO from "@/components/seo/seo";
 
 const HeroSlider = lazy(() => import("@/components/home/HeroSlider"));
 const CategorySlider = lazy(() => import("@/components/home/CategorySlider"));
@@ -49,6 +50,12 @@ const Home = () => {
   }
 
   return (
+     <>
+    <SEO
+      title="Premium Baby & Kids Store"
+      description="Shop premium baby clothing, toys, diapers, feeding essentials, and kids accessories with delivery across Nepal."
+    />
+
     <div className="bg-[#faf9f7]">
       {/* Hero Slider - Always visible first */}
 <Suspense
@@ -236,6 +243,7 @@ const Home = () => {
         }
       `}</style>
     </div>
+    </>
   );
 };
 

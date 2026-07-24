@@ -1,22 +1,22 @@
-  import { Heart, Users, Baby, Sparkles } from "lucide-react";
-  import { motion } from "framer-motion";
+import { Heart, Users, Baby, Sparkles } from "lucide-react";
+import { motion } from "framer-motion";
 import SkeletonLoader from "@/components/skletons/AboutSkleton";
 import { useEffect, useState } from "react";
+import SEO from "@/components/seo/seo";
 
-  const floating = {
-    animate: { y: [0, -10, 0] },
-    transition: {
-      duration: 6,
-      repeat: Infinity,
-      ease: "easeInOut" as const,
-    },
-  };
+const floating = {
+  animate: { y: [0, -10, 0] },
+  transition: {
+    duration: 6,
+    repeat: Infinity,
+    ease: "easeInOut" as const,
+  },
+};
 
-  export default function AboutUs() {
+export default function AboutUs() {
+  const [loading, setLoading] = useState(true);
 
-    const [loading, setLoading] = useState(true);
-
-      useEffect(() => {
+  useEffect(() => {
     // Simulate loading time
     const timer = setTimeout(() => {
       setLoading(false);
@@ -25,10 +25,15 @@ import { useEffect, useState } from "react";
     return () => clearTimeout(timer);
   }, []);
 
-    if (loading) {
-      return <SkeletonLoader />;
-    }
-    return (
+  if (loading) {
+    return <SkeletonLoader />;
+  }
+  return (
+    <>
+      <SEO
+        title="About Us"
+        description="Learn more about SuperDad and our mission to provide quality baby products."
+      />
       <div className="relative overflow-hidden bg-[#f5e7db]">
         {/* BACKGROUND BLOBS */}
         <div className="fixed inset-0 -z-10 overflow-hidden">
@@ -91,7 +96,9 @@ import { useEffect, useState } from "react";
                     </div>
 
                     <div>
-                      <h4 className="font-semibold text-[#3E2723]">Family First</h4>
+                      <h4 className="font-semibold text-[#3E2723]">
+                        Family First
+                      </h4>
                       <p className="text-xs md:text-sm text-[#795548]">
                         Built for modern families.
                       </p>
@@ -112,7 +119,10 @@ import { useEffect, useState } from "react";
 
             <h2 className="mt-5 text-3xl md:text-5xl lg:text-6xl font-light">
               Helping Every Parent Become a
-              <span className="font-semibold text-[#8B6914]"> Super Parent</span>
+              <span className="font-semibold text-[#8B6914]">
+                {" "}
+                Super Parent
+              </span>
             </h2>
 
             <p className="mt-6 md:mt-8 text-[#795548] leading-relaxed max-w-4xl mx-auto">
@@ -169,7 +179,9 @@ import { useEffect, useState } from "react";
 
             <h2 className="mt-5 text-3xl md:text-5xl lg:text-6xl font-light">
               Nepal's Most Trusted{" "}
-              <span className="font-semibold text-[#8B6914]">Parenting Platform</span>
+              <span className="font-semibold text-[#8B6914]">
+                Parenting Platform
+              </span>
             </h2>
 
             <p className="mt-6 md:mt-8 text-[#795548] leading-relaxed">
@@ -195,8 +207,8 @@ import { useEffect, useState } from "react";
 
               <p className="mt-6 md:mt-8 text-[#795548] leading-relaxed">
                 Superdad was born from a simple but powerful observation — many
-                parents deeply want to spend quality time with their children, but
-                modern life often gets in the way.
+                parents deeply want to spend quality time with their children,
+                but modern life often gets in the way.
                 <br />
                 <br />
                 We created Superdad not just to sell products, but to support
@@ -214,7 +226,9 @@ import { useEffect, useState } from "react";
                   ))}
                 </div>
                 <p className="text-sm text-[#795548]">
-                  Trusted by <span className="font-semibold text-[#3E2723]">5000+</span> happy parents
+                  Trusted by{" "}
+                  <span className="font-semibold text-[#3E2723]">5000+</span>{" "}
+                  happy parents
                 </p>
               </div>
             </div>
@@ -237,7 +251,9 @@ import { useEffect, useState } from "react";
                   </div>
                   <div>
                     <h4 className="font-semibold text-[#3E2723]">Since 2024</h4>
-                    <p className="text-xs md:text-sm text-[#795548]">Empowering parents</p>
+                    <p className="text-xs md:text-sm text-[#795548]">
+                      Empowering parents
+                    </p>
                   </div>
                 </div>
               </motion.div>
@@ -245,5 +261,6 @@ import { useEffect, useState } from "react";
           </div>
         </section>
       </div>
-    );
-  } 
+    </>
+  );
+}
